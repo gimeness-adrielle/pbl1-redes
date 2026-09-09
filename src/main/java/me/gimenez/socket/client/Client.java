@@ -3,8 +3,11 @@ package me.gimenez.socket.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import me.gimenez.model.users.User;
 import me.gimenez.requests.PublishRideRequest;
 import me.gimenez.requests.Request;
+import me.gimenez.requests.auth.LoginRequest;
+import me.gimenez.requests.auth.RegisterRequest;
 
 import java.io.*;
 import java.net.Socket;
@@ -24,18 +27,25 @@ public class Client {
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
-    public String sendMessage(String message) throws IOException {
-        out.println(message);
-        return in.readLine();
-    }
+    public void sendRequest(String type, Object data) throws JsonProcessingException {
+        Request request = new Request(type, data);
 
-    public void publishRide(PublishRideRequest request) throws JsonProcessingException {
-        Request message = new Request("PUBLISH_RIDE", request);
-
-        String json = mapper.writeValueAsString(message);
+        String json = mapper.writeValueAsString(request);
 
         System.out.println(json);
         out.println(json);
+    }
+
+    public User login (LoginRequest request) throws IOException {
+        sendRequest("LOGIN", request);
+
+        String response = in.readLine();
+
+        if (response.equals("LOGIN_ERROR")) {
+            return null;
+        }
+
+        return mapper.readValue(response, User.class);
     }
 
 }

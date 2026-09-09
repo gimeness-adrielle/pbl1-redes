@@ -1,24 +1,33 @@
 package me.gimenez.model;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Getter @Setter
 public class Ride {
-    @Setter(AccessLevel.NONE)
     private UUID id = UUID.randomUUID();
+    private UUID driverId;
+    private List<String> route;
+    private LocalDate date;
+    private LocalTime departureTime;
+    private List<Segment> segments;
 
-    private final UUID driverId;
-    private final List<String> route;
-    private final LocalDate date;
-    private final LocalTime departureTime;
-    private final List<Segment> segments;
+    public Ride(
+            UUID driverId,
+            List<String> route,
+            LocalDate date,
+            LocalTime departureTime,
+            List<Segment> segments
+    ) {
+        this.driverId = driverId;
+        this.route = route;
+        this.date = date;
+        this.departureTime = departureTime;
+        this.segments = segments;
+    }
 }

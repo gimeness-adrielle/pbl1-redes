@@ -15,4 +15,21 @@
     "price" : 80.0,
     "availableSeats" : 3
   } ]
+}, {
+  "id" : "b8fbfd70-9456-4823-9f68-04be853c4537",
+  "driverId" : "177568f1-d533-4ffa-aec0-04e91ec99047",
+  "route" : [ "Barreiras", "Feira de Santana", "Salvador" ],
+  "date" : [ 2026, 9, 10 ],
+  "departureTime" : [ 15, 30 ],
+  "segments" : [ {
+    "origin" : "Barreiras",
+    "destination" : "Feira de Santana",
+    "price" : 80.0,
+    "availableSeats" : 4
+  }, {
+    "origin" : "Feira de Santana",
+    "destination" : "Salvador",
+    "price" : 40.0,
+    "availableSeats" : 4
+  } ]
 } ]

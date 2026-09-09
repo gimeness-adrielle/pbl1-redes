@@ -2,9 +2,13 @@ package me.gimenez.socket.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import me.gimenez.model.users.User;
 import me.gimenez.requests.PublishRideRequest;
 import me.gimenez.requests.Request;
+import me.gimenez.requests.auth.LoginRequest;
+import me.gimenez.requests.auth.RegisterRequest;
 import me.gimenez.services.RideService;
+import me.gimenez.services.UserService;
 
 import java.io.*;
 import java.net.Socket;
@@ -13,10 +17,13 @@ public class ClientHandler implements Runnable {
     private final Socket clientSocket;
     private final ObjectMapper mapper;
     private final RideService rideService;
+    private final UserService userService;
+    private User currentUser;
 
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
         this.rideService = new RideService();
+        this.userService = new UserService();
         this.mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
     }
@@ -27,19 +34,34 @@ public class ClientHandler implements Runnable {
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-            System.out.println("Client Connected");
-            String json = in.readLine();
-            Request request = mapper.readValue(json, Request.class);
+            String json;
 
-            switch (request.type()){
-                case "PUBLISH_RIDE":
-                    PublishRideRequest publishRequest = mapper.convertValue(request.data(), PublishRideRequest.class);
-                    rideService.publish(publishRequest);
-                    break;
+            while ((json = in.readLine()) != null) {
+                Request request = mapper.readValue(json, Request.class);
 
+                switch (request.type()){
+                    case "PUBLISH_RIDE":
+                        PublishRideRequest publishRequest = mapper.convertValue(request.data(), PublishRideRequest.class);
+                        rideService.publish(publishRequest, currentUser);
+                        break;
+                    case "LOGIN":
+                        LoginRequest loginRequest = mapper.convertValue(request.data(), LoginRequest.class);
+                        try{
+                            currentUser = userService.login(loginRequest);
+                            System.out.println("Entrou como: " + currentUser.username());
+
+                            out.println(mapper.writeValueAsString(currentUser));
+                        } catch (RuntimeException e) {
+                            out.println("LOGIN_ERROR");
+                        }
+                        break;
+                    case "REGISTER":
+                        RegisterRequest registerRequest = mapper.convertValue(request.data(), RegisterRequest.class);
+                        userService.register(registerRequest);
+                        System.out.println("Nova conta registrada com sucesso!");
+                        break;
+                }
             }
-
-            out.println("hello client!");
 
             clientSocket.close();
 

@@ -19,6 +19,30 @@ public class DriverApp {
         this.client = client;
     }
 
+    public void start(){
+        while(true){
+            System.out.println("Bem-vindo ao painel de motorista.");
+
+            System.out.println("Selecione uma opção: ");
+
+            System.out.println("1- Cadastrar carona");
+            System.out.println("2- Listar caronas cadastradas");
+            System.out.println("3- Cancelar uma carona");
+            System.out.println("q- Sair");
+
+            String choice = sc.nextLine();
+
+            switch (choice) {
+                case "1": showPublishRide(); break;
+                case "2": break;
+                case "3": break;
+                case "q": System.exit(0); break;
+                default:
+                    System.out.println("Opção inválida");;
+            }
+        }
+    }
+
     public void showPublishRide() {
         System.out.println("Você está cadastrando uma carona");
 
@@ -70,9 +94,27 @@ public class DriverApp {
         PublishRideRequest request = new  PublishRideRequest(routes, date, time, prices, seats);
 
         try {
-            client.publishRide(request);
+            client.sendRequest("PUBLISH_RIDE", request);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void showAllRides (){
+        System.out.println("Veja abaixo todas as suas caronas cadastradas: ");
+    }
+
+    public void deleteRide(){
+        showAllRides();
+
+        System.out.println("Escolha o número da carona para deletar: ");
+        System.out.println("Digite 'q' para cancelar a operação.");
+        String choice = sc.nextLine();
+
+        if (choice.equals("q")) {
+            return;
+        }
+
+        // aqui tem que mandar deletar lá pro negócio.
     }
 }
