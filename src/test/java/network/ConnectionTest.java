@@ -11,8 +11,7 @@ public class ConnectionTest {
 
     @Test
     public void testConnection() throws IOException {
-        Client client = new Client();
-        client.startConnection("localhost", 5000);
+        Client client = new Client("localhost", 5000);
         String response = client.sendMessage("hello server!");
         assertEquals("hello client!", response);
 
@@ -23,8 +22,7 @@ public class ConnectionTest {
 
         Thread client1 =  new Thread(() -> {
             try {
-                Client client = new Client();
-                client.startConnection("localhost", 5000);
+                Client client = new Client("localhost", 5000);
                 String response = client.sendMessage("hello server!");
                 assertEquals("hello client!", response);
 
@@ -35,8 +33,7 @@ public class ConnectionTest {
 
         Thread client2 =  new Thread(() -> {
             try {
-                Client client = new Client();
-                client.startConnection("localhost", 5000);
+                Client client = new Client("localhost", 5000);
                 String response = client.sendMessage("hello server!");
                 assertEquals("hello client!", response);
             } catch (IOException e){

@@ -1,0 +1,18 @@
+[ {
+  "id" : "ef4254f6-b612-4a02-9b41-a100a4e121c3",
+  "driverId" : "6a134e21-a866-4954-96ac-d1e18625578b",
+  "route" : [ "Salvador", "Feira de Santana", "Vitoria da Conquista" ],
+  "date" : [ 2026, 9, 10 ],
+  "departureTime" : [ 10, 30 ],
+  "segments" : [ {
+    "origin" : "Salvador",
+    "destination" : "Feira de Santana",
+    "price" : 60.0,
+    "availableSeats" : 3
+  }, {
+    "origin" : "Feira de Santana",
+    "destination" : "Vitoria da Conquista",
+    "price" : 80.0,
+    "availableSeats" : 3
+  } ]
+} ]
