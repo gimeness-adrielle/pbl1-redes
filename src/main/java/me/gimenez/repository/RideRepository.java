@@ -3,6 +3,7 @@ package me.gimenez.repository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import me.gimenez.model.Itinerary;
 import me.gimenez.model.Ride;
 
 import java.io.IOException;
@@ -21,8 +22,7 @@ public class RideRepository {
         this.mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
     }
-
-    public void save(Ride ride) throws IOException {
+    public List<Ride> findAllRides() throws IOException {
         List<Ride> rides;
         if (Files.exists(path)) {
             rides = mapper.readValue(
@@ -33,9 +33,14 @@ public class RideRepository {
             rides = new ArrayList<>();
         }
 
+        return rides;
+    }
+
+    public void save(Ride ride) throws IOException {
+        List<Ride> rides = findAllRides();
+
         rides.add(ride);
 
         mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), rides);
-        System.out.println("Salvou!");
     }
 }

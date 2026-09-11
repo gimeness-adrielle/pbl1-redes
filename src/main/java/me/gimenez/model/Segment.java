@@ -1,4 +1,7 @@
 package me.gimenez.model;
 
-public record Segment(String origin, String destination, double price, int availableSeats) {
+import java.util.UUID;
+
+public record Segment(
+        UUID id, String origin, String destination, double price, int availableSeats) {
 }

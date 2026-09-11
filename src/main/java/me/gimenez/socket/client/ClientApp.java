@@ -79,6 +79,8 @@ public class ClientApp {
                 } else {
                     passengerApp.start();
                 }
+
+                System.exit(0);
             } catch (IOException e) {
                 System.out.println("Erro de comunicação com o servidor.");
             }

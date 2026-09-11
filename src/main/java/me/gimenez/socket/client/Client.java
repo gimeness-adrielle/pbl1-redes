@@ -1,16 +1,20 @@
 package me.gimenez.socket.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import me.gimenez.model.Itinerary;
 import me.gimenez.model.users.User;
 import me.gimenez.requests.PublishRideRequest;
 import me.gimenez.requests.Request;
+import me.gimenez.requests.SearchRideRequest;
 import me.gimenez.requests.auth.LoginRequest;
 import me.gimenez.requests.auth.RegisterRequest;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.List;
 
 public class Client {
     private final PrintWriter out;
@@ -46,6 +50,14 @@ public class Client {
         }
 
         return mapper.readValue(response, User.class);
+    }
+
+    public List<Itinerary> searchRides(SearchRideRequest request) throws IOException {
+        sendRequest("SEARCH_RIDES", request);
+
+        String response = in.readLine();
+
+        return mapper.readValue(response, new TypeReference<>() {});
     }
 
 }

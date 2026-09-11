@@ -2,9 +2,12 @@ package me.gimenez.socket.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import me.gimenez.model.Itinerary;
 import me.gimenez.model.users.User;
+import me.gimenez.repository.RideRepository;
 import me.gimenez.requests.PublishRideRequest;
 import me.gimenez.requests.Request;
+import me.gimenez.requests.SearchRideRequest;
 import me.gimenez.requests.auth.LoginRequest;
 import me.gimenez.requests.auth.RegisterRequest;
 import me.gimenez.services.RideService;
@@ -12,6 +15,7 @@ import me.gimenez.services.UserService;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.List;
 
 public class ClientHandler implements Runnable {
     private final Socket clientSocket;
@@ -22,7 +26,7 @@ public class ClientHandler implements Runnable {
 
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
-        this.rideService = new RideService();
+        this.rideService = new RideService(new RideRepository());
         this.userService = new UserService();
         this.mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
@@ -59,6 +63,11 @@ public class ClientHandler implements Runnable {
                         RegisterRequest registerRequest = mapper.convertValue(request.data(), RegisterRequest.class);
                         userService.register(registerRequest);
                         System.out.println("Nova conta registrada com sucesso!");
+                        break;
+                    case "SEARCH_RIDES":
+                        SearchRideRequest searchRequest = mapper.convertValue(request.data(), SearchRideRequest.class);
+                        List<Itinerary> itineraries = rideService.search(searchRequest);
+                        out.println(mapper.writeValueAsString(itineraries));
                         break;
                 }
             }
