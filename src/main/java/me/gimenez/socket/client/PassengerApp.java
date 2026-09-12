@@ -1,7 +1,10 @@
 package me.gimenez.socket.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import me.gimenez.model.Itinerary;
 import me.gimenez.model.Segment;
+import me.gimenez.requests.ReserveItineraryRequest;
+import me.gimenez.requests.Response;
 import me.gimenez.requests.SearchRideRequest;
 
 import java.io.IOException;
@@ -52,12 +55,12 @@ public class PassengerApp {
         String dateInput =  sc.nextLine();
         LocalDate date = LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-        SearchRideRequest request = new SearchRideRequest(origin, destination, date);
+        SearchRideRequest searchRequest = new SearchRideRequest(origin, destination, date);
 
         List<Itinerary> itineraries;
 
         try {
-            itineraries = client.searchRides(request);
+            itineraries = client.searchRides(searchRequest);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -74,15 +77,36 @@ public class PassengerApp {
 
             for (int j=0; j<itinerary.segments().size(); j++) {
                 Segment segment = itinerary.segments().get(j);
-                System.out.println("        " + segment.origin() + " → " + segment.destination() + " (R$ " + segment.price() + ")");
+                System.out.println("        " + segment.getOrigin() + " → " + segment.getDestination() + " (R$ " + segment.getPrice() + ")");
             }
 
             System.out.println("\nPreço total: R$ " + itinerary.totalPrice());
         }
 
-        System.out.println("Digite o número do itinerário desejado: ");
+        System.out.println("Digite o número do itinerário desejado");
+        System.out.println("Ou digite 'q' para cancelar");
         String choice =  sc.nextLine();
+
+        if (choice.equals("q")){
+            return;
+        }
+
         Itinerary itinerary = itineraries.get(Integer.parseInt(choice));
+
+        ReserveItineraryRequest reserveRequest = new ReserveItineraryRequest(itinerary.segments().stream().map(Segment::getId).toList());
+
+        try {
+            Response response = client.reserveItinerary(reserveRequest);
+
+            if (response.status().equals("200")) {
+                System.out.println("Reserva realizada com sucesso!");
+            } else {
+                System.out.println("Erro ao realizar reserva: " + response.message());
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         // Agora precisa pegar esse itinerary e reservar nos segmentos.
     }

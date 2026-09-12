@@ -118,7 +118,7 @@ public class ClientApp {
             client.sendRequest("REGISTER", request);
 
             System.out.println("Registrado com sucesso.");
-        } catch (JsonProcessingException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 

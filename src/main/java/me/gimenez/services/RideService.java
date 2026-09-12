@@ -64,7 +64,7 @@ public class RideService {
 
         // Filtra os trechos das caronas que possuem assentos disponíveis
         List<Segment> segments = ridesOfDate.stream().flatMap(ride -> ride.getSegments().stream())
-                .filter(segment -> segment.availableSeats() > 0)
+                .filter(segment -> segment.getAvailableSeats() > 0)
                 .toList();
 
         List<Itinerary> itineraries = new ArrayList<>();
@@ -77,7 +77,7 @@ public class RideService {
 
     public void dfs(List<Segment> path, String currentCity, String destination, List<Segment> segments, List<Itinerary> itineraries){
         if (currentCity.equals(destination)) {
-            double totalPrice = path.stream().mapToDouble(Segment::price).sum();
+            double totalPrice = path.stream().mapToDouble(Segment::getPrice).sum();
             Itinerary itinerary = new Itinerary(totalPrice, new ArrayList<>(path));
 
             itineraries.add(itinerary);
@@ -85,7 +85,7 @@ public class RideService {
         }
 
         for (Segment segment : segments) {
-            if (!segment.origin().equals(currentCity)) {
+            if (!segment.getOrigin().equals(currentCity)) {
                 continue;
             }
 
@@ -94,10 +94,34 @@ public class RideService {
             }
 
             path.add(segment);
-            dfs(path, segment.destination(), destination, segments, itineraries);
+            dfs(path, segment.getDestination(), destination, segments, itineraries);
             path.removeLast();
         }
 
+    }
+
+    public boolean reserveItinerary(List<UUID> segmentsIds){
+        List<Segment> segments = new ArrayList<>();
+
+        for (UUID id: segmentsIds){
+            try {
+                Segment segment = repository.findSegmentById(id);
+
+                if(segment.getAvailableSeats() <= 0){
+                    return false;
+                }
+
+                segments.add(segment);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        for (Segment segment : segments) {
+            segment.setAvailableSeats(segment.getAvailableSeats() - 1);
+        }
+
+        return true;
     }
 
 }

@@ -3,6 +3,7 @@ package me.gimenez.socket.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import me.gimenez.requests.PublishRideRequest;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -95,7 +96,7 @@ public class DriverApp {
 
         try {
             client.sendRequest("PUBLISH_RIDE", request);
-        } catch (JsonProcessingException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
