@@ -47,8 +47,8 @@ public class RideServiceTest {
 
         assertEquals(1, itineraries.size());
         assertEquals(1, itineraries.getFirst().segments().size());
-        assertEquals("Feira de Santana", itineraries.getFirst().segments().getFirst().origin());
-        assertEquals("Salvador", itineraries.getFirst().segments().getFirst().destination());
+        assertEquals("Feira de Santana", itineraries.getFirst().segments().getFirst().getOrigin());
+        assertEquals("Salvador", itineraries.getFirst().segments().getFirst().getDestination());
     }
 
     @Test
@@ -79,8 +79,8 @@ public class RideServiceTest {
 
         assertEquals(1, itineraries.size());
         assertEquals(2, itineraries.getFirst().segments().size());
-        assertEquals("Salvador", itineraries.getFirst().segments().getFirst().origin());
-        assertEquals("Vitória da Conquista",  itineraries.getFirst().segments().getLast().destination());
+        assertEquals("Salvador", itineraries.getFirst().segments().getFirst().getOrigin());
+        assertEquals("Vitória da Conquista",  itineraries.getFirst().segments().getLast().getDestination());
     }
 
     @Test

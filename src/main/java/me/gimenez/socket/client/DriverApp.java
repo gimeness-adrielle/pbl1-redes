@@ -2,8 +2,10 @@ package me.gimenez.socket.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import me.gimenez.requests.PublishRideRequest;
+import me.gimenez.requests.Response;
 
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -22,9 +24,9 @@ public class DriverApp {
 
     public void start(){
         while(true){
-            System.out.println("Bem-vindo ao painel de motorista.");
+            System.out.println("\nBem-vindo ao painel de motorista.");
 
-            System.out.println("Selecione uma opção: ");
+            System.out.println("Selecione uma opção:\n");
 
             System.out.println("1- Cadastrar carona");
             System.out.println("2- Listar caronas cadastradas");
@@ -39,7 +41,8 @@ public class DriverApp {
                 case "3": break;
                 case "q": System.exit(0); break;
                 default:
-                    System.out.println("Opção inválida");;
+                    System.out.println("Opção inválida");
+                    break;
             }
         }
     }
@@ -95,7 +98,8 @@ public class DriverApp {
         PublishRideRequest request = new  PublishRideRequest(routes, date, time, prices, seats);
 
         try {
-            client.sendRequest("PUBLISH_RIDE", request);
+            Response response = client.sendRequest("PUBLISH_RIDE", request);
+            System.out.println(response.message());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

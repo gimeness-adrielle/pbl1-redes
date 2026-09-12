@@ -32,7 +32,7 @@ public class Client {
 
         String json = mapper.writeValueAsString(request);
 
-        System.out.println(json);
+        System.out.println("VEIO DO USUÁRIO: " + json);
         out.println(json);
 
         String response = in.readLine();
@@ -40,23 +40,20 @@ public class Client {
         return mapper.readValue(response, Response.class);
     }
 
-    public User login (LoginRequest request) throws IOException {
+    public Response login (LoginRequest request) throws IOException {
         Response response = sendRequest("LOGIN", request);
+        User user = mapper.convertValue(response.data(), User.class);
 
-        if (response.status().equals("400")) {
-            return null;
-        }
-
-        return mapper.convertValue(response.data(), User.class);
+        return new Response(response.status(), response.message(), user);
     }
 
     public List<Itinerary> searchRides(SearchRideRequest request) throws IOException {
         Response response = sendRequest("SEARCH_RIDES", request);
 
-        return mapper.convertValue(response, new TypeReference<>() {});
+        return mapper.convertValue(response.data(), new TypeReference<>() {});
     }
 
-    public Response reserveItinerary (ReserveItineraryRequest request) throws IOException {
+    public Response reserveItinerary (ReservationRequest request) throws IOException {
         return sendRequest("RESERVE_ITINERARY", request);
     }
 

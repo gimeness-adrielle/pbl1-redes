@@ -3,11 +3,14 @@ package me.gimenez.socket.server;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import me.gimenez.model.Itinerary;
+import me.gimenez.model.Ride;
 import me.gimenez.model.users.User;
+import me.gimenez.repository.ReservationRepository;
 import me.gimenez.repository.RideRepository;
 import me.gimenez.requests.*;
 import me.gimenez.requests.auth.LoginRequest;
 import me.gimenez.requests.auth.RegisterRequest;
+import me.gimenez.services.ReservationService;
 import me.gimenez.services.RideService;
 import me.gimenez.services.UserService;
 
@@ -22,13 +25,17 @@ public class ClientHandler implements Runnable {
     private final ObjectMapper mapper;
     private final RideService rideService;
     private final UserService userService;
+    private final ReservationService reservationService;
     private User currentUser;
 
     public ClientHandler(Socket clientSocket) {
-        this.clientSocket = clientSocket;
-        this.rideService = new RideService(new RideRepository());
-        this.userService = new UserService();
         this.mapper = new ObjectMapper();
+
+
+        this.clientSocket = clientSocket;
+        this.rideService = new RideService(new RideRepository(mapper));
+        this.userService = new UserService();
+        this.reservationService = new ReservationService(new ReservationRepository(mapper));
         mapper.registerModule(new JavaTimeModule());
     }
 
@@ -82,42 +89,66 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void handlePublishRide(Request request){
+    public void handlePublishRide(Request request) throws IOException {
         PublishRideRequest publishRequest = mapper.convertValue(request.data(), PublishRideRequest.class);
-        rideService.publish(publishRequest, currentUser);
+        Ride ride = rideService.publish(publishRequest, currentUser);
+
+        if (ride == null){
+            sendResponse(new Response("ERROR", "Não foi possível publicar a carona.", null));
+            return;
+        }
+
+        sendResponse(new Response("OK", "Carona publicada com sucesso!", ride));
     }
 
     public void handleLogin (Request request) throws IOException {
         LoginRequest loginRequest = mapper.convertValue(request.data(), LoginRequest.class);
         try{
             currentUser = userService.login(loginRequest);
-            out.println(mapper.writeValueAsString(currentUser));
+
+            if (currentUser == null){
+                sendResponse(new Response("ERROR", "Usuário ou senha incorretos.", null));
+                return;
+            }
+
+            sendResponse(new Response(
+                    "OK",
+                    "Login realizado com sucesso!",
+                    currentUser
+            ));
 
         } catch (IOException e) {
-            sendResponse(new Response("400", e.getMessage(), null));
+            sendResponse(new Response("ERROR", e.getMessage(), null));
         }
     }
 
     public void handleRegister (Request request) throws IOException {
         RegisterRequest registerRequest = mapper.convertValue(request.data(), RegisterRequest.class);
         userService.register(registerRequest);
-        sendResponse(new Response("201", "Nova conta registrada com sucesso.", null));
+        sendResponse(new Response("CREATED", "Nova conta registrada com sucesso.", null));
     }
 
     public void handleSearchRides(Request request) throws IOException {
         SearchRideRequest searchRequest = mapper.convertValue(request.data(), SearchRideRequest.class);
         List<Itinerary> itineraries = rideService.search(searchRequest);
-        out.println(mapper.writeValueAsString(itineraries));
+
+        if (itineraries.isEmpty()){
+            sendResponse(new Response("NOT_FOUND", "Não foram encontrados itinerários.", null));
+            return;
+        }
+
+        sendResponse(new Response("OK", "Busca realizada com sucesso.", itineraries));
     }
 
     public void handleReserveItinerary(Request request) throws IOException {
-        ReserveItineraryRequest reserveRequest = mapper.convertValue(request.data(), ReserveItineraryRequest.class);
-        boolean success = rideService.reserveItinerary(reserveRequest.segmentsIds());
+        ReservationRequest reserveRequest = mapper.convertValue(request.data(), ReservationRequest.class);
+        boolean success = rideService.reserveSegments(reserveRequest.segmentsIds());
+        boolean reserved = reservationService.reserve(reserveRequest.itinerary(), currentUser);
 
-        if (success){
-            sendResponse(new Response("200", "Reserva realizada com sucesso.", null));
+        if (success && reserved){
+            sendResponse(new Response("OK", "Reserva realizada com sucesso.", null));
         } else {
-            sendResponse(new Response("400", "Não foi possível realizar a reserva.", null));
+            sendResponse(new Response("ERROR", "Não foi possível realizar a reserva.", null));
         }
     }
 

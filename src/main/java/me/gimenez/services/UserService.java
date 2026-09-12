@@ -26,18 +26,17 @@ public class UserService {
         User user = null;
         try {
             user = repository.findByUsername(request.username());
+            System.out.println(user);
+
+            if (user == null || !user.password().equals(request.password())) {
+                return null;
+            }
+
+            return user;
+
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return null;
         }
 
-        if (user == null){
-            throw new RuntimeException("Usuário não encontrado.");
-        }
-
-        if (!user.password().equals(request.password())){
-            throw new RuntimeException("Senha incorreta.");
-        }
-
-        return user;
     }
 }

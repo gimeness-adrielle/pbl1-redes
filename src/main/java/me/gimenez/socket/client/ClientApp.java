@@ -1,8 +1,8 @@
 package me.gimenez.socket.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import me.gimenez.model.users.User;
 import me.gimenez.model.users.UserType;
+import me.gimenez.requests.Response;
 import me.gimenez.requests.auth.LoginRequest;
 import me.gimenez.requests.auth.RegisterRequest;
 
@@ -65,14 +65,16 @@ public class ClientApp {
             LoginRequest request = new LoginRequest(username,password);
 
             try {
-                User user = client.login(request);
+                Response response = client.login(request);
 
-                if (user == null) {
+                System.out.println("CLIENT APP: " + response); // TÁ RECEBENDO USER NULO
+
+                if (response.status().equals("ERROR")) {
                     System.out.println("\nUsuário ou senha incorretos.");
                     System.out.println("Tente novamente.\n");
                     continue;
                 }
-
+                User user = (User) response.data();
 
                 if (user.userType() == UserType.DRIVER){
                     driverApp.start();

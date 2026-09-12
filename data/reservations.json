@@ -1,0 +1,14 @@
+[ {
+  "id" : "93c03168-3b4c-4d7e-8982-a3c8f2ed6ac9",
+  "passengerId" : "8488d406-4279-484a-b12a-ccd89536a2f4",
+  "itinerary" : {
+    "totalPrice" : 60.0,
+    "segments" : [ {
+      "id" : "fe67414d-eb12-4f77-8d9b-c79a7e78a440",
+      "origin" : "Salvador",
+      "destination" : "Feira de Santana",
+      "price" : 60.0,
+      "availableSeats" : 3
+    } ]
+  }
+} ]

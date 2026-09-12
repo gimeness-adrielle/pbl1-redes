@@ -1,9 +1,8 @@
 package me.gimenez.socket.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import me.gimenez.model.Itinerary;
 import me.gimenez.model.Segment;
-import me.gimenez.requests.ReserveItineraryRequest;
+import me.gimenez.requests.ReservationRequest;
 import me.gimenez.requests.Response;
 import me.gimenez.requests.SearchRideRequest;
 
@@ -80,7 +79,7 @@ public class PassengerApp {
                 System.out.println("        " + segment.getOrigin() + " → " + segment.getDestination() + " (R$ " + segment.getPrice() + ")");
             }
 
-            System.out.println("\nPreço total: R$ " + itinerary.totalPrice());
+            System.out.println("Preço total: R$ " + itinerary.totalPrice() + "\n");
         }
 
         System.out.println("Digite o número do itinerário desejado");
@@ -91,14 +90,19 @@ public class PassengerApp {
             return;
         }
 
-        Itinerary itinerary = itineraries.get(Integer.parseInt(choice));
+        Itinerary itinerary = itineraries.get(Integer.parseInt(choice)-1);
 
-        ReserveItineraryRequest reserveRequest = new ReserveItineraryRequest(itinerary.segments().stream().map(Segment::getId).toList());
+        if (itinerary == null){
+            System.out.println("Número do itinerário não encontrado.");
+            return;
+        }
+
+        ReservationRequest reserveRequest = new ReservationRequest(itinerary, itinerary.segments().stream().map(Segment::getId).toList());
 
         try {
             Response response = client.reserveItinerary(reserveRequest);
 
-            if (response.status().equals("200")) {
+            if (response.status().equals("OK")) {
                 System.out.println("Reserva realizada com sucesso!");
             } else {
                 System.out.println("Erro ao realizar reserva: " + response.message());
@@ -108,7 +112,6 @@ public class PassengerApp {
             throw new RuntimeException(e);
         }
 
-        // Agora precisa pegar esse itinerary e reservar nos segmentos.
     }
 
 }

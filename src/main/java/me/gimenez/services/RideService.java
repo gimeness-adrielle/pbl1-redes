@@ -21,7 +21,7 @@ public class RideService {
         this.repository = repository;
     }
 
-    public void publish(PublishRideRequest request, User driver){
+    public Ride publish(PublishRideRequest request, User driver){
         List<Segment> segments = new ArrayList<>();
 
         for (int i = 0; i < request.routes().size() - 1; i++) {
@@ -46,8 +46,9 @@ public class RideService {
 
         try {
             repository.save(ride);
+            return ride;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
@@ -100,7 +101,7 @@ public class RideService {
 
     }
 
-    public boolean reserveItinerary(List<UUID> segmentsIds){
+    public boolean reserveSegments(List<UUID> segmentsIds){
         List<Segment> segments = new ArrayList<>();
 
         for (UUID id: segmentsIds){
@@ -123,5 +124,4 @@ public class RideService {
 
         return true;
     }
-
 }

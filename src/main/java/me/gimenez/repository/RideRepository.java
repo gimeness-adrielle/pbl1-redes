@@ -19,8 +19,8 @@ public class RideRepository {
     private final Map<UUID, Ride> rides = new HashMap<>();
     private final Map<UUID, Segment> segments = new HashMap<>();
 
-    public RideRepository() {
-        this.mapper = new ObjectMapper();
+    public RideRepository(ObjectMapper mapper) {
+        this.mapper = mapper;
         mapper.registerModule(new JavaTimeModule());
         loadData();
     }

@@ -1,35 +1,21 @@
 [ {
-  "id" : "ef4254f6-b612-4a02-9b41-a100a4e121c3",
-  "driverId" : "6a134e21-a866-4954-96ac-d1e18625578b",
+  "id" : "b61d27da-6242-4f46-9545-bf989f66c2e9",
+  "driverId" : "177568f1-d533-4ffa-aec0-04e91ec99047",
   "route" : [ "Salvador", "Feira de Santana", "Vitoria da Conquista" ],
-  "date" : [ 2026, 9, 10 ],
-  "departureTime" : [ 10, 30 ],
+  "date" : [ 2026, 9, 12 ],
+  "departureTime" : [ 15, 30 ],
   "segments" : [ {
+    "id" : "fe67414d-eb12-4f77-8d9b-c79a7e78a440",
     "origin" : "Salvador",
     "destination" : "Feira de Santana",
     "price" : 60.0,
     "availableSeats" : 3
   }, {
+    "id" : "5fff7c13-b21a-4603-8901-a88afaba81b1",
     "origin" : "Feira de Santana",
     "destination" : "Vitoria da Conquista",
     "price" : 80.0,
     "availableSeats" : 3
   } ]
-}, {
-  "id" : "b8fbfd70-9456-4823-9f68-04be853c4537",
-  "driverId" : "177568f1-d533-4ffa-aec0-04e91ec99047",
-  "route" : [ "Barreiras", "Feira de Santana", "Salvador" ],
-  "date" : [ 2026, 9, 10 ],
-  "departureTime" : [ 15, 30 ],
-  "segments" : [ {
-    "origin" : "Barreiras",
-    "destination" : "Feira de Santana",
-    "price" : 80.0,
-    "availableSeats" : 4
-  }, {
-    "origin" : "Feira de Santana",
-    "destination" : "Salvador",
-    "price" : 40.0,
-    "availableSeats" : 4
-  } ]
+
 } ]
