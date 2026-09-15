@@ -10,62 +10,73 @@ import me.gimenez.repository.RideRepository;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final RideRepository rideRepository;
+    private final Map<UUID, ReentrantLock> segmentLocks = new ConcurrentHashMap<>();
 
     public ReservationService(ReservationRepository reservationRepository, RideRepository rideRepository) {
         this.reservationRepository = reservationRepository;
         this.rideRepository = rideRepository;
     }
 
-    public Reservation reserve(Itinerary itinerary, List<UUID> segmentIds, User user){
-        List<Segment> currentSegments = new ArrayList<>();
+    private ReentrantLock getLock (UUID segmentId){
+        return segmentLocks.computeIfAbsent(segmentId, id -> new ReentrantLock());
+    }
 
-        // Primeiro encontra os trechos verdadeiros salvos no sistema
+    public Reservation reserve(Itinerary itinerary, List<UUID> segmentIds, User user){
+        // Locks
+        List<UUID> sortedSegmentIds = segmentIds.stream().sorted().toList();    // Ordena os IDs para resolver deadlocks
+        List<ReentrantLock> locks = sortedSegmentIds.stream().map(this::getLock).toList();
+
+        for (ReentrantLock lock : locks) {
+            System.out.println("Thread: " + Thread.currentThread().getName() + " Trying to reserve " + lock.toString());
+            lock.lock();
+            System.out.println("Thread: " + Thread.currentThread().getName() + " Trying to reserve " + lock);
+        }
+        //
+
         try {
+            // Lista de segmentos verdadeiros do sistema: não é correto confiar na lista enviada no request, pois no
+            // sistema pode ter mudado dados do segmento, e a lista do request vai estar desatualizada.
+            List<Segment> currentSegments = new ArrayList<>();
+
+            // Encontra os segmentos do request no repositório
             for (UUID segmentId : segmentIds) {
                 Segment segment = rideRepository.findSegmentById(segmentId);
-
-                if (segment == null) {
+                System.out.println("Thread: " + Thread.currentThread().getName() + " Trying to reserve " + segment.toString());
+                System.out.println("Vagas: " + segment.getAvailableSeats());
+                if (segment.getAvailableSeats() <= 0){
+                    System.out.println("Thread: " + Thread.currentThread().getName() + " Segmento: " +
+                            segment.getOrigin() + " SEM VAGA");
                     return null;
                 }
 
                 currentSegments.add(segment);
             }
-        } catch (IOException e) {
-            return null;
-        }
 
-        // Verifica se todos esses trechos ainda tem assentos disponíveis.
-        for (Segment segment : currentSegments) {
-            if (segment.getAvailableSeats() <= 0) {
-                return null;
-            }
-        }
+            Reservation reservation = new Reservation(UUID.randomUUID(), user.id(), itinerary);
 
-        Reservation reservation = new Reservation(
-                UUID.randomUUID(),
-                user.id(),
-                itinerary
-        );
-
-        try {
-            // Salva a reserva e diminui a quantidade de assentos disponíveis do trecho
             reservationRepository.save(reservation);
-            for (Segment segment : currentSegments){
+            for (Segment segment : currentSegments) {
                 segment.setAvailableSeats(segment.getAvailableSeats() - 1);
             }
-
-            // Salva a alteração nos assentos dos trechos.
             rideRepository.saveAll();
-        } catch (IOException e) {
-            return null;
-        }
 
-        return reservation;
+            return reservation;
+        } catch (IOException e){
+            return null;
+        } finally {
+            locks.forEach((lock) -> {
+                System.out.println("Thread: " + Thread.currentThread().getName() + " Liberando " + lock.toString());
+                lock.unlock();
+            });
+        }
     }
 
     public List<Reservation> listAllUserReservations(UUID userId){
