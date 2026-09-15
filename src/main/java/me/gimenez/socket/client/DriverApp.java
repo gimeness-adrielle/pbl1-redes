@@ -1,11 +1,8 @@
 package me.gimenez.socket.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import me.gimenez.requests.PublishRideRequest;
-import me.gimenez.requests.Response;
+import me.gimenez.dto.ride.CreateRideRequest;
+import me.gimenez.dto.Response;
 
-import java.io.IOException;
-import java.sql.SQLOutput;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -95,14 +92,10 @@ public class DriverApp {
         LocalDate date = LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         LocalTime time = LocalTime.parse(timeInput, DateTimeFormatter.ofPattern("HH:mm"));
 
-        PublishRideRequest request = new  PublishRideRequest(routes, date, time, prices, seats);
+        CreateRideRequest request = new CreateRideRequest(routes, date, time, prices, seats);
 
-        try {
-            Response response = client.sendRequest("PUBLISH_RIDE", request);
-            System.out.println(response.message());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        Response response = client.publishRide(request);
+        System.out.println(response.message());
     }
 
     public void showAllRides (){

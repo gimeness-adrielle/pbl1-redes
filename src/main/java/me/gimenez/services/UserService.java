@@ -2,8 +2,8 @@ package me.gimenez.services;
 
 import me.gimenez.model.users.User;
 import me.gimenez.repository.UserRepository;
-import me.gimenez.requests.auth.LoginRequest;
-import me.gimenez.requests.auth.RegisterRequest;
+import me.gimenez.dto.auth.LoginRequest;
+import me.gimenez.dto.auth.RegisterRequest;
 
 import java.io.IOException;
 import java.util.UUID;

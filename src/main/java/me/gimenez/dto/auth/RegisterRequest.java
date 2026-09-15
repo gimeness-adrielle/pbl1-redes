@@ -1,4 +1,4 @@
-package me.gimenez.requests.auth;
+package me.gimenez.dto.auth;
 
 import me.gimenez.model.users.UserType;
 

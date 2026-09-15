@@ -1,4 +1,4 @@
-package me.gimenez.requests;
+package me.gimenez.dto.ride;
 
 import java.time.LocalDate;
 

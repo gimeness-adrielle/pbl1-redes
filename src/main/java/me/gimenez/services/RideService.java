@@ -5,8 +5,8 @@ import me.gimenez.model.Ride;
 import me.gimenez.model.Segment;
 import me.gimenez.model.users.User;
 import me.gimenez.repository.RideRepository;
-import me.gimenez.requests.PublishRideRequest;
-import me.gimenez.requests.SearchRideRequest;
+import me.gimenez.dto.ride.CreateRideRequest;
+import me.gimenez.dto.ride.SearchRideRequest;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class RideService {
         this.repository = repository;
     }
 
-    public Ride publish(PublishRideRequest request, User driver){
+    public Ride publish(CreateRideRequest request, User driver){
         List<Segment> segments = new ArrayList<>();
 
         for (int i = 0; i < request.routes().size() - 1; i++) {
@@ -101,27 +101,18 @@ public class RideService {
 
     }
 
-    public boolean reserveSegments(List<UUID> segmentsIds){
+    public List<Segment> getSegmentsToReserve(List<UUID> segmentsIds){
         List<Segment> segments = new ArrayList<>();
 
         for (UUID id: segmentsIds){
             try {
                 Segment segment = repository.findSegmentById(id);
-
-                if(segment.getAvailableSeats() <= 0){
-                    return false;
-                }
-
                 segments.add(segment);
-
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-        for (Segment segment : segments) {
-            segment.setAvailableSeats(segment.getAvailableSeats() - 1);
-        }
 
-        return true;
+        return segments;
     }
 }

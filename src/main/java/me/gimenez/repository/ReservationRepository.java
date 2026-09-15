@@ -46,4 +46,27 @@ public class ReservationRepository {
         mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), reservations.values());
     }
 
+    public List<Reservation> listAllUserReservations(UUID userId){
+        return reservations.values().stream().filter(reservation -> reservation.passengerId().equals(userId)).toList();
+    }
+
+    public Reservation getById(UUID id){
+        return reservations.get(id);
+    }
+
+    public boolean delete(UUID id) {
+        Reservation isRemoved = reservations.remove(id);
+
+        if (isRemoved == null) {
+            return false;
+        }
+
+        try {
+            mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), reservations.values());
+            return true;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

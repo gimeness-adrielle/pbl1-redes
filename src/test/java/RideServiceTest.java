@@ -2,7 +2,7 @@ import me.gimenez.model.Itinerary;
 import me.gimenez.model.Ride;
 import me.gimenez.model.Segment;
 import me.gimenez.repository.RideRepository;
-import me.gimenez.requests.SearchRideRequest;
+import me.gimenez.dto.ride.SearchRideRequest;
 import me.gimenez.services.RideService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +29,7 @@ public class RideServiceTest {
     private RideService service;
 
     @Test
-    public void should_return_oneItinerary_with_oneSegment() throws IOException {
+    void should_return_oneItinerary_with_oneSegment() throws IOException {
         SearchRideRequest request = new SearchRideRequest("Feira de Santana", "Salvador", LocalDate.of(2026, 9, 15));
 
         Segment segment = new Segment(UUID.randomUUID(), "Feira de Santana", "Salvador", 60, 3);
@@ -52,7 +52,7 @@ public class RideServiceTest {
     }
 
     @Test
-    public void should_return_oneItinerary_with_twoSegments() throws IOException {
+    void should_return_oneItinerary_with_twoSegments() throws IOException {
         SearchRideRequest request = new SearchRideRequest("Salvador", "Vitória da Conquista", LocalDate.of(2026, 9, 15));
 
         Segment segment1 = new Segment(UUID.randomUUID(), "Feira de Santana", "Vitória da Conquista", 60, 2);
@@ -84,7 +84,7 @@ public class RideServiceTest {
     }
 
     @Test
-    public void should_return_emptyItineraries_when_segment_has_no_available_seats() throws IOException {
+    void should_return_emptyItineraries_when_segment_has_no_available_seats() throws IOException {
         SearchRideRequest request = new SearchRideRequest("Feira de Santana", "Salvador", LocalDate.of(2026, 9, 15));
 
         // Dois trechos, mas o desejado não tem vagas disponíveis.
@@ -106,7 +106,7 @@ public class RideServiceTest {
     }
 
     @Test
-    public void should_return_nothing_with_impossibleItinerary() throws IOException {
+    void should_return_nothing_with_impossibleItinerary() throws IOException {
         SearchRideRequest request = new SearchRideRequest("Salvador", "São Paulo", LocalDate.of(2026, 9, 15));
 
         Segment segment1 = new Segment(UUID.randomUUID(), "Salvador", "Camaçari", 60, 2);

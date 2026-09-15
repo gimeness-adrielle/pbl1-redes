@@ -1,12 +1,13 @@
 package me.gimenez.socket.client;
 
+import me.gimenez.dto.reservation.DeleteReservationRequest;
 import me.gimenez.model.Itinerary;
+import me.gimenez.model.Reservation;
 import me.gimenez.model.Segment;
-import me.gimenez.requests.ReservationRequest;
-import me.gimenez.requests.Response;
-import me.gimenez.requests.SearchRideRequest;
+import me.gimenez.dto.reservation.CreateReservationRequest;
+import me.gimenez.dto.Response;
+import me.gimenez.dto.ride.SearchRideRequest;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -27,7 +28,7 @@ public class PassengerApp {
 
             System.out.println("Selecione uma opção: ");
             System.out.println("1- Buscar itinerários");
-            System.out.println("2- Consultar reservas");
+            System.out.println("2- Consultar minhas reservas");
             System.out.println("3- Cancelar reservas");
             System.out.println("q- Sair");
 
@@ -35,15 +36,15 @@ public class PassengerApp {
 
             switch (choice) {
                 case "1": showSearchRides(); break;
-                case "2": break;
-                case "3": break;
+                case "2": showListReservations(); break;
+                case "3": showDeleteReservation(); break;
                 case "q": System.exit(0); break;
                 default: break;
             }
         }
     }
 
-    public void showSearchRides(){
+    void showSearchRides(){
         System.out.println("Digite a origem que deseja procurar: ");
         String origin = sc.nextLine();
 
@@ -58,11 +59,7 @@ public class PassengerApp {
 
         List<Itinerary> itineraries;
 
-        try {
-            itineraries = client.searchRides(searchRequest);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        itineraries = client.searchRides(searchRequest);
 
         if (itineraries == null){
             System.out.println("Não foram encontrados itinerários.");
@@ -70,23 +67,15 @@ public class PassengerApp {
         }
 
         for (int i=0; i<itineraries.size(); i++) {
-            System.out.println("\nItinerário " + (i+1) + ":");
             Itinerary itinerary = itineraries.get(i);
-            System.out.println("    Trechos: ");
-
-            for (int j=0; j<itinerary.segments().size(); j++) {
-                Segment segment = itinerary.segments().get(j);
-                System.out.println("        " + segment.getOrigin() + " → " + segment.getDestination() + " (R$ " + segment.getPrice() + ")");
-            }
-
-            System.out.println("Preço total: R$ " + itinerary.totalPrice() + "\n");
+            printItinerary(itinerary, i);
         }
 
         System.out.println("Digite o número do itinerário desejado");
         System.out.println("Ou digite 'q' para cancelar");
         String choice =  sc.nextLine();
 
-        if (choice.equals("q")){
+        if ("q".equalsIgnoreCase(choice)){
             return;
         }
 
@@ -97,21 +86,71 @@ public class PassengerApp {
             return;
         }
 
-        ReservationRequest reserveRequest = new ReservationRequest(itinerary, itinerary.segments().stream().map(Segment::getId).toList());
+        CreateReservationRequest reserveRequest = new CreateReservationRequest(itinerary, itinerary.segments().stream().map(Segment::getId).toList());
 
-        try {
-            Response response = client.reserveItinerary(reserveRequest);
+        Response response = client.reserveItinerary(reserveRequest);
 
-            if (response.status().equals("OK")) {
-                System.out.println("Reserva realizada com sucesso!");
-            } else {
-                System.out.println("Erro ao realizar reserva: " + response.message());
-            }
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (response.status().equals("OK")) {
+            System.out.println("Reserva realizada com sucesso!");
+        } else {
+            System.out.println("Erro ao realizar reserva: " + response.message());
         }
 
+    }
+
+    List<Reservation> showListReservations(){
+        List<Reservation> reservations = client.listReservations();
+        if (reservations.isEmpty()){
+            System.out.println("Você não tem reservas.");
+            return null;
+        }
+
+        System.out.println("\nSuas reservas: ");
+
+        for (int i=0; i<reservations.size(); i++) {
+            Itinerary itinerary = reservations.get(i).itinerary();
+            printItinerary(itinerary, i);
+        }
+
+        return reservations;
+    }
+
+    void showDeleteReservation(){
+        List<Reservation> reservations = showListReservations();
+
+        if (reservations == null){
+            return;
+        }
+
+        System.out.println("Digite o número do itinerário para cancelar sua reserva: ");
+        System.out.println("Ou digite 'q' para cancelar");
+        String choice = sc.nextLine();
+
+        if ("q".equalsIgnoreCase(choice)){
+            return;
+        }
+
+        Reservation reservation = reservations.get(Integer.parseInt(choice)-1);
+
+        Response response = client.deleteReservation(new DeleteReservationRequest(reservation.id()));
+
+        if (response.status().equals("DELETED")){
+            System.out.println(response.message());
+        } else {
+            System.out.println("Erro ao deletar reserva: " + response.message());
+        }
+    }
+
+    void printItinerary(Itinerary itinerary, int i){
+        System.out.println("\nItinerário " + (i+1) + ":");
+        System.out.println("    Trechos: ");
+
+        for (int j=0; j<itinerary.segments().size(); j++) {
+            Segment segment = itinerary.segments().get(j);
+            System.out.println("        " + segment.getOrigin() + " → " + segment.getDestination() + " (R$ " + segment.getPrice() + ")");
+        }
+
+        System.out.println("Preço total: R$ " + itinerary.totalPrice() + "\n");
     }
 
 }

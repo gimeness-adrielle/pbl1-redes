@@ -59,4 +59,9 @@ public class RideRepository {
     public Segment findSegmentById(UUID id) throws IOException {
         return segments.get(id);
     }
+
+    public void saveAll() throws IOException {
+        mapper.writerWithDefaultPrettyPrinter()
+                .writeValue(path.toFile(), rides.values());
+    }
 }

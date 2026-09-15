@@ -3,10 +3,15 @@ package me.gimenez.socket.client;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import me.gimenez.dto.reservation.CreateReservationRequest;
+import me.gimenez.dto.reservation.DeleteReservationRequest;
+import me.gimenez.dto.ride.CreateRideRequest;
+import me.gimenez.dto.ride.SearchRideRequest;
 import me.gimenez.model.Itinerary;
+import me.gimenez.model.Reservation;
 import me.gimenez.model.users.User;
-import me.gimenez.requests.*;
-import me.gimenez.requests.auth.LoginRequest;
+import me.gimenez.dto.*;
+import me.gimenez.dto.auth.LoginRequest;
 
 import java.io.*;
 import java.net.Socket;
@@ -40,21 +45,62 @@ public class Client {
         return mapper.readValue(response, Response.class);
     }
 
-    public Response login (LoginRequest request) throws IOException {
-        Response response = sendRequest("LOGIN", request);
+    public Response login (LoginRequest request) {
+        Response response = null;
+        try {
+            response = sendRequest("LOGIN", request);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         User user = mapper.convertValue(response.data(), User.class);
 
         return new Response(response.status(), response.message(), user);
     }
 
-    public List<Itinerary> searchRides(SearchRideRequest request) throws IOException {
-        Response response = sendRequest("SEARCH_RIDES", request);
+    public Response publishRide(CreateRideRequest request){
+        try{
+            return sendRequest("PUBLISH_RIDE", request);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Itinerary> searchRides(SearchRideRequest request) {
+        Response response = null;
+        try {
+            response = sendRequest("SEARCH_RIDES", request);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         return mapper.convertValue(response.data(), new TypeReference<>() {});
     }
 
-    public Response reserveItinerary (ReservationRequest request) throws IOException {
-        return sendRequest("RESERVE_ITINERARY", request);
+    public Response reserveItinerary (CreateReservationRequest request){
+        try {
+            return sendRequest("RESERVE_ITINERARY", request);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Reservation> listReservations (){
+        try {
+            Response response = sendRequest("LIST_RESERVATIONS", null);
+
+            return mapper.convertValue(response.data(), new TypeReference<>() {});
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Response deleteReservation (DeleteReservationRequest request){
+        try {
+            return sendRequest("DELETE_RESERVATION", request);
+        }catch (IOException e){
+            throw new RuntimeException(e);
+        }
     }
 
 }

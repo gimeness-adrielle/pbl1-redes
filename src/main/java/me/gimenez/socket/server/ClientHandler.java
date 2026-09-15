@@ -2,14 +2,19 @@ package me.gimenez.socket.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import me.gimenez.dto.reservation.CreateReservationRequest;
+import me.gimenez.dto.reservation.DeleteReservationRequest;
+import me.gimenez.dto.ride.CreateRideRequest;
+import me.gimenez.dto.ride.SearchRideRequest;
 import me.gimenez.model.Itinerary;
+import me.gimenez.model.Reservation;
 import me.gimenez.model.Ride;
 import me.gimenez.model.users.User;
 import me.gimenez.repository.ReservationRepository;
 import me.gimenez.repository.RideRepository;
-import me.gimenez.requests.*;
-import me.gimenez.requests.auth.LoginRequest;
-import me.gimenez.requests.auth.RegisterRequest;
+import me.gimenez.dto.*;
+import me.gimenez.dto.auth.LoginRequest;
+import me.gimenez.dto.auth.RegisterRequest;
 import me.gimenez.services.ReservationService;
 import me.gimenez.services.RideService;
 import me.gimenez.services.UserService;
@@ -30,12 +35,12 @@ public class ClientHandler implements Runnable {
 
     public ClientHandler(Socket clientSocket) {
         this.mapper = new ObjectMapper();
-
+        RideRepository rideRepository = new RideRepository(mapper);
 
         this.clientSocket = clientSocket;
-        this.rideService = new RideService(new RideRepository(mapper));
+        this.rideService = new RideService(rideRepository);
         this.userService = new UserService();
-        this.reservationService = new ReservationService(new ReservationRepository(mapper));
+        this.reservationService = new ReservationService(new ReservationRepository(mapper), rideRepository);
         mapper.registerModule(new JavaTimeModule());
     }
 
@@ -60,12 +65,12 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void sendResponse (Response response) throws IOException {
+    void sendResponse (Response response) throws IOException {
         String json = mapper.writeValueAsString(response);
         out.println(json);
     }
 
-    public void handleRequest(Request request) throws IOException {
+    void handleRequest(Request request) throws IOException {
         switch (request.type()){
             case "PUBLISH_RIDE":
                 handlePublishRide(request);
@@ -86,11 +91,17 @@ public class ClientHandler implements Runnable {
             case "RESERVE_ITINERARY":
                 handleReserveItinerary(request);
                 break;
+
+            case "LIST_RESERVATIONS":
+                handleListReservations();
+                break;
+            case "DELETE_RESERVATION":
+                handleDeleteReservation(request);
         }
     }
 
-    public void handlePublishRide(Request request) throws IOException {
-        PublishRideRequest publishRequest = mapper.convertValue(request.data(), PublishRideRequest.class);
+    void handlePublishRide(Request request) throws IOException {
+        CreateRideRequest publishRequest = mapper.convertValue(request.data(), CreateRideRequest.class);
         Ride ride = rideService.publish(publishRequest, currentUser);
 
         if (ride == null){
@@ -101,7 +112,7 @@ public class ClientHandler implements Runnable {
         sendResponse(new Response("OK", "Carona publicada com sucesso!", ride));
     }
 
-    public void handleLogin (Request request) throws IOException {
+    void handleLogin (Request request) throws IOException {
         LoginRequest loginRequest = mapper.convertValue(request.data(), LoginRequest.class);
         try{
             currentUser = userService.login(loginRequest);
@@ -122,13 +133,12 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void handleRegister (Request request) throws IOException {
+    void handleRegister (Request request) throws IOException {
         RegisterRequest registerRequest = mapper.convertValue(request.data(), RegisterRequest.class);
         userService.register(registerRequest);
         sendResponse(new Response("CREATED", "Nova conta registrada com sucesso.", null));
     }
-
-    public void handleSearchRides(Request request) throws IOException {
+    void handleSearchRides(Request request) throws IOException {
         SearchRideRequest searchRequest = mapper.convertValue(request.data(), SearchRideRequest.class);
         List<Itinerary> itineraries = rideService.search(searchRequest);
 
@@ -140,15 +150,29 @@ public class ClientHandler implements Runnable {
         sendResponse(new Response("OK", "Busca realizada com sucesso.", itineraries));
     }
 
-    public void handleReserveItinerary(Request request) throws IOException {
-        ReservationRequest reserveRequest = mapper.convertValue(request.data(), ReservationRequest.class);
-        boolean success = rideService.reserveSegments(reserveRequest.segmentsIds());
-        boolean reserved = reservationService.reserve(reserveRequest.itinerary(), currentUser);
+    void handleReserveItinerary(Request request) throws IOException {
+        CreateReservationRequest createReservationRequest = mapper.convertValue(request.data(), CreateReservationRequest.class);
+        Reservation reservation = reservationService.reserve(createReservationRequest.itinerary(), createReservationRequest.segmentsIds(), currentUser);
 
-        if (success && reserved){
+        if (reservation != null){
             sendResponse(new Response("OK", "Reserva realizada com sucesso.", null));
         } else {
             sendResponse(new Response("ERROR", "Não foi possível realizar a reserva.", null));
+        }
+    }
+
+    void handleListReservations() throws IOException {
+        List<Reservation> reservations = reservationService.listAllUserReservations(currentUser.id());
+        sendResponse(new Response("OK", "Busca realizada com sucesso.", reservations));
+    }
+
+    void handleDeleteReservation(Request request) throws IOException {
+        boolean success = reservationService.delete(mapper.convertValue(request.data(), DeleteReservationRequest.class).id());
+
+        if (success){
+            sendResponse(new Response("DELETED", "A reserva foi deletada realizada com sucesso.", null));
+        }else{
+            sendResponse(new Response("ERROR", "Não foi possível deletar a reserva.", null));
         }
     }
 

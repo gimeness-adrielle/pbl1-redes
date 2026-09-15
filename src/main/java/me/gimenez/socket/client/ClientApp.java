@@ -2,9 +2,9 @@ package me.gimenez.socket.client;
 
 import me.gimenez.model.users.User;
 import me.gimenez.model.users.UserType;
-import me.gimenez.requests.Response;
-import me.gimenez.requests.auth.LoginRequest;
-import me.gimenez.requests.auth.RegisterRequest;
+import me.gimenez.dto.Response;
+import me.gimenez.dto.auth.LoginRequest;
+import me.gimenez.dto.auth.RegisterRequest;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -64,28 +64,22 @@ public class ClientApp {
 
             LoginRequest request = new LoginRequest(username,password);
 
-            try {
-                Response response = client.login(request);
+            Response response = client.login(request);
 
-                System.out.println("CLIENT APP: " + response); // TÁ RECEBENDO USER NULO
-
-                if (response.status().equals("ERROR")) {
-                    System.out.println("\nUsuário ou senha incorretos.");
-                    System.out.println("Tente novamente.\n");
-                    continue;
-                }
-                User user = (User) response.data();
-
-                if (user.userType() == UserType.DRIVER){
-                    driverApp.start();
-                } else {
-                    passengerApp.start();
-                }
-
-                System.exit(0);
-            } catch (IOException e) {
-                System.out.println("Erro de comunicação com o servidor.");
+            if (response.status().equals("ERROR")) {
+                System.out.println("\nUsuário ou senha incorretos.");
+                System.out.println("Tente novamente.\n");
+                continue;
             }
+            User user = (User) response.data();
+
+            if (user.userType() == UserType.DRIVER){
+                driverApp.start();
+            } else {
+                passengerApp.start();
+            }
+
+            System.exit(0);
         }
     }
 
