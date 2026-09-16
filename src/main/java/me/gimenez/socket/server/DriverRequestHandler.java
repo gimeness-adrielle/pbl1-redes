@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import me.gimenez.dto.Request;
 import me.gimenez.dto.Response;
 import me.gimenez.dto.ride.CreateRideRequest;
+import me.gimenez.dto.ride.DeleteRideRequest;
 import me.gimenez.model.Ride;
 import me.gimenez.model.users.User;
 import me.gimenez.services.ReservationService;
@@ -11,6 +12,7 @@ import me.gimenez.services.RideService;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 public class DriverRequestHandler {
     private final PrintWriter out;
@@ -37,6 +39,14 @@ public class DriverRequestHandler {
             case "PUBLISH_RIDE":
                 handlePublishRide(request);
                 break;
+
+            case "LIST_RIDES":
+                handleListRides();
+                break;
+
+            case "DELETE_RIDE":
+                handleDeleteRide(request);
+                break;
         }
     }
 
@@ -57,5 +67,26 @@ public class DriverRequestHandler {
         sendResponse(new Response("OK", "Carona publicada com sucesso!", ride));
     }
 
+    void handleListRides() throws IOException {
+        List<Ride> rides = rideService.listRides();
+        System.out.println(rides);
+
+        if (rides == null){
+            sendResponse(new Response("ERROR", "Não foi possível buscar suas caronas.", null));
+            return;
+        }
+
+        sendResponse(new Response("OK", "Caronas buscadas com sucesso!", rides));
+    }
+
+    void handleDeleteRide(Request request) throws IOException {
+        boolean success = rideService.deleteRide(mapper.convertValue(request.data(), DeleteRideRequest.class).id());
+
+        if (success){
+            sendResponse(new Response("DELETED", "Carona removida com sucesso!", null));
+            return;
+        }
+        sendResponse(new Response("ERROR", "Não foi possível deletar a carona.", null));
+    }
 
 }

@@ -60,8 +60,28 @@ public class RideRepository {
         return segments.get(id);
     }
 
+    public Ride findRideById(UUID id) throws IOException {
+        return rides.get(id);
+    }
+
     public void saveAll() throws IOException {
-        mapper.writerWithDefaultPrettyPrinter()
-                .writeValue(path.toFile(), rides.values());
+        mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), rides.values());
+    }
+
+    public boolean delete(UUID id) {
+        Ride ride = rides.remove(id);
+
+        if (ride == null) { return false; }
+
+        for (Segment segment : ride.getSegments()) {
+            segments.remove(segment.getId());
+        }
+
+        try {
+            saveAll();
+            return true;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

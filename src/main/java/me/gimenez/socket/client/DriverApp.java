@@ -2,6 +2,9 @@ package me.gimenez.socket.client;
 
 import me.gimenez.dto.ride.CreateRideRequest;
 import me.gimenez.dto.Response;
+import me.gimenez.dto.ride.DeleteRideRequest;
+import me.gimenez.model.Ride;
+import me.gimenez.model.Segment;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -34,8 +37,8 @@ public class DriverApp {
 
             switch (choice) {
                 case "1": showPublishRide(); break;
-                case "2": break;
-                case "3": break;
+                case "2": showAllRides(); break;
+                case "3": showDeleteRide(); break;
                 case "q": System.exit(0); break;
                 default:
                     System.out.println("Opção inválida");
@@ -98,21 +101,56 @@ public class DriverApp {
         System.out.println(response.message());
     }
 
-    public void showAllRides (){
+    public List<Ride> showAllRides (){
+        List<Ride> rides = client.listRides();
+
+        if (rides.isEmpty()){
+            System.out.println("Você não possui caronas cadastradas.");
+        }
+
         System.out.println("Veja abaixo todas as suas caronas cadastradas: ");
+        for (int i = 0; i<rides.size(); i++) {
+            Ride ride = rides.get(i);
+
+            System.out.println("\nCarona " + (i+1) + ":");
+            System.out.println(ride.getDate() + " saída às " + ride.getDepartureTime());
+
+            List<Segment> segments =  ride.getSegments();
+
+            System.out.println("Trechos da viagem:");
+
+            for (Segment segment : segments) {
+                System.out.println("\n    " + segment.getOrigin() + " → " + segment.getDestination());
+                System.out.println("    Preço: R$" + segment.getPrice());
+
+                if (segment.getAvailableSeats() == 0){
+                    System.out.println("    Status: LOTADO");
+                } else {
+                    System.out.println("    Status: " + segment.getAvailableSeats() + " assentos disponíveis.");
+                }
+            }
+        }
+
+        return rides;
     }
 
-    public void deleteRide(){
-        showAllRides();
+    public void showDeleteRide(){
+        List<Ride> rides = showAllRides();
 
         System.out.println("Escolha o número da carona para deletar: ");
-        System.out.println("Digite 'q' para cancelar a operação.");
+        System.out.println("Ou digite 'q' para cancelar a operação.");
         String choice = sc.nextLine();
 
-        if (choice.equals("q")) {
+        if ("q".equalsIgnoreCase(choice)){
             return;
         }
 
-        // aqui tem que mandar deletar lá pro negócio.
+        Ride ride = rides.get(Integer.parseInt(choice)-1);
+
+        DeleteRideRequest request = new DeleteRideRequest(ride.getId());
+        Response response = client.deleteRide(request);
+
+        System.out.println(response.message());
+
     }
 }

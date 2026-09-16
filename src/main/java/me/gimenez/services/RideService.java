@@ -4,6 +4,7 @@ import me.gimenez.model.Itinerary;
 import me.gimenez.model.Ride;
 import me.gimenez.model.Segment;
 import me.gimenez.model.users.User;
+import me.gimenez.repository.ReservationRepository;
 import me.gimenez.repository.RideRepository;
 import me.gimenez.dto.ride.CreateRideRequest;
 import me.gimenez.dto.ride.SearchRideRequest;
@@ -15,10 +16,12 @@ import java.util.UUID;
 
 public class RideService {
 
-    private final RideRepository repository;
+    private final RideRepository rideRepository;
+    private final ReservationRepository reservationRepository;
 
-    public RideService(RideRepository repository) {
-        this.repository = repository;
+    public RideService(RideRepository rideRepository, ReservationRepository reservationRepository) {
+        this.rideRepository = rideRepository;
+        this.reservationRepository = reservationRepository;
     }
 
     public Ride publish(CreateRideRequest request, User driver){
@@ -27,7 +30,7 @@ public class RideService {
         for (int i = 0; i < request.routes().size() - 1; i++) {
             Segment segment = new Segment(
                     UUID.randomUUID(),
-                request.routes().get(i),
+                    request.routes().get(i),
                     request.routes().get(i+1),
                     request.prices().get(i),
                     request.seats()
@@ -36,16 +39,10 @@ public class RideService {
             segments.add(segment);
         }
 
-        Ride ride = new Ride(
-                driver.id(),
-                request.routes(),
-                request.date(),
-                request.departureTime(),
-                segments
-        );
+        Ride ride = new Ride(driver.id(), request.routes(), request.date(), request.departureTime(), segments);
 
         try {
-            repository.save(ride);
+            rideRepository.save(ride);
             return ride;
         } catch (IOException e) {
             return null;
@@ -55,7 +52,7 @@ public class RideService {
     public List<Itinerary> search(SearchRideRequest request){
         List<Ride> rides;
         try {
-            rides = repository.findAllRides();
+            rides = rideRepository.findAllRides();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -101,18 +98,29 @@ public class RideService {
 
     }
 
-    public List<Segment> getSegmentsToReserve(List<UUID> segmentsIds){
-        List<Segment> segments = new ArrayList<>();
+    public List<Ride> listRides(){
+        try {
+            return rideRepository.findAllRides();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-        for (UUID id: segmentsIds){
-            try {
-                Segment segment = repository.findSegmentById(id);
-                segments.add(segment);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+    public boolean deleteRide(UUID id){
+        try{
+            Ride ride = rideRepository.findRideById(id);
+
+            if (ride == null) { return false; }
+
+            // Deleta todas as reservas que tem aqueles trechos da carona como itinerários.
+            List<UUID> segmentIds = ride.getSegments().stream().map(Segment::getId).toList();
+            reservationRepository.deleteBySegmentId(segmentIds);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
-        return segments;
+
+        return rideRepository.delete(id);
     }
 }

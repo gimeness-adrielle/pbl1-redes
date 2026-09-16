@@ -6,9 +6,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import me.gimenez.dto.reservation.CreateReservationRequest;
 import me.gimenez.dto.reservation.DeleteReservationRequest;
 import me.gimenez.dto.ride.CreateRideRequest;
+import me.gimenez.dto.ride.DeleteRideRequest;
 import me.gimenez.dto.ride.SearchRideRequest;
 import me.gimenez.model.Itinerary;
 import me.gimenez.model.Reservation;
+import me.gimenez.model.Ride;
 import me.gimenez.model.users.User;
 import me.gimenez.dto.*;
 import me.gimenez.dto.auth.LoginRequest;
@@ -58,6 +60,7 @@ public class Client {
         return new Response(response.status(), response.message(), user);
     }
 
+    // DRIVER
     public Response publishRide(CreateRideRequest request){
         try{
             return sendRequest("PUBLISH_RIDE", request);
@@ -66,6 +69,25 @@ public class Client {
         }
     }
 
+    public List<Ride> listRides(){
+        try{
+            Response response = sendRequest("LIST_RIDES", null);
+            System.out.println(response);
+            return mapper.convertValue(response.data(), new TypeReference<>() {});
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Response deleteRide(DeleteRideRequest request){
+        try{
+            return sendRequest("DELETE_RIDE", request);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // PASSENGER
     public List<Itinerary> searchRides(SearchRideRequest request) {
         Response response = null;
         try {
@@ -102,5 +124,4 @@ public class Client {
             throw new RuntimeException(e);
         }
     }
-
 }

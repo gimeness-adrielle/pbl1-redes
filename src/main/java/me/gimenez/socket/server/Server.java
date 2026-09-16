@@ -24,7 +24,7 @@ public class Server {
         RideRepository rideRepository = new RideRepository(mapper);
         ReservationRepository reservationRepository = new ReservationRepository(mapper);
 
-        this.rideService = new RideService(rideRepository);
+        this.rideService = new RideService(rideRepository, reservationRepository);
         this.reservationService = new ReservationService(reservationRepository, rideRepository);
         this.userService = new UserService();
     }

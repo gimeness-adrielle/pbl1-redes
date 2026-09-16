@@ -90,12 +90,7 @@ public class PassengerApp {
 
         Response response = client.reserveItinerary(reserveRequest);
 
-        if (response.status().equals("OK")) {
-            System.out.println("Reserva realizada com sucesso!");
-        } else {
-            System.out.println("Erro ao realizar reserva: " + response.message());
-        }
-
+        System.out.println(response.message());
     }
 
     List<Reservation> showListReservations(){
@@ -134,11 +129,7 @@ public class PassengerApp {
 
         Response response = client.deleteReservation(new DeleteReservationRequest(reservation.id()));
 
-        if (response.status().equals("DELETED")){
-            System.out.println(response.message());
-        } else {
-            System.out.println("Erro ao deletar reserva: " + response.message());
-        }
+        System.out.println(response.message());
     }
 
     void printItinerary(Itinerary itinerary, int i){
