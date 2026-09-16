@@ -10,8 +10,6 @@ import me.gimenez.model.Itinerary;
 import me.gimenez.model.Reservation;
 import me.gimenez.model.Ride;
 import me.gimenez.model.users.User;
-import me.gimenez.repository.ReservationRepository;
-import me.gimenez.repository.RideRepository;
 import me.gimenez.dto.*;
 import me.gimenez.dto.auth.LoginRequest;
 import me.gimenez.dto.auth.RegisterRequest;
@@ -26,22 +24,24 @@ import java.util.List;
 public class ClientHandler implements Runnable {
     private final Socket clientSocket;
     private PrintWriter out;
-
     private final ObjectMapper mapper;
+
     private final RideService rideService;
-    private final UserService userService;
     private final ReservationService reservationService;
+    private final UserService userService;
+
     private User currentUser;
 
-    public ClientHandler(Socket clientSocket) {
-        this.mapper = new ObjectMapper();
-        RideRepository rideRepository = new RideRepository(mapper);
-
+    public ClientHandler(Socket clientSocket,
+                         RideService rideService,
+                         ReservationService reservationService,
+                         UserService userService,
+                         ObjectMapper mapper) {
         this.clientSocket = clientSocket;
-        this.rideService = new RideService(rideRepository);
-        this.userService = new UserService();
-        this.reservationService = new ReservationService(new ReservationRepository(mapper), rideRepository);
-        mapper.registerModule(new JavaTimeModule());
+        this.rideService = rideService;
+        this.reservationService = reservationService;
+        this.userService = userService;
+        this.mapper = mapper;
     }
 
     @Override
