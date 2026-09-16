@@ -35,9 +35,7 @@ public class ReservationService {
         List<ReentrantLock> locks = sortedSegmentIds.stream().map(this::getLock).toList();
 
         for (ReentrantLock lock : locks) {
-            System.out.println("Thread: " + Thread.currentThread().getName() + " Trying to reserve " + lock.toString());
             lock.lock();
-            System.out.println("Thread: " + Thread.currentThread().getName() + " Trying to reserve " + lock);
         }
         //
 
@@ -49,11 +47,7 @@ public class ReservationService {
             // Encontra os segmentos do request no repositório
             for (UUID segmentId : segmentIds) {
                 Segment segment = rideRepository.findSegmentById(segmentId);
-                System.out.println("Thread: " + Thread.currentThread().getName() + " Trying to reserve " + segment.toString());
-                System.out.println("Vagas: " + segment.getAvailableSeats());
                 if (segment.getAvailableSeats() <= 0){
-                    System.out.println("Thread: " + Thread.currentThread().getName() + " Segmento: " +
-                            segment.getOrigin() + " SEM VAGA");
                     return null;
                 }
 
@@ -73,7 +67,6 @@ public class ReservationService {
             return null;
         } finally {
             locks.forEach((lock) -> {
-                System.out.println("Thread: " + Thread.currentThread().getName() + " Liberando " + lock.toString());
                 lock.unlock();
             });
         }

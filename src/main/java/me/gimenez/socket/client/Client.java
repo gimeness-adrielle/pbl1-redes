@@ -41,8 +41,7 @@ public class Client {
         Request request = new Request(type, data);
 
         String json = mapper.writeValueAsString(request);
-
-        System.out.println("VEIO DO USUÁRIO: " + json);
+        
         out.println(json);
 
         String response = in.readLine();
