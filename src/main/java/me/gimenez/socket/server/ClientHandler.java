@@ -1,7 +1,6 @@
 package me.gimenez.socket.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import me.gimenez.dto.reservation.CreateReservationRequest;
 import me.gimenez.dto.reservation.DeleteReservationRequest;
 import me.gimenez.dto.ride.CreateRideRequest;
@@ -13,6 +12,7 @@ import me.gimenez.model.users.User;
 import me.gimenez.dto.*;
 import me.gimenez.dto.auth.LoginRequest;
 import me.gimenez.dto.auth.RegisterRequest;
+import me.gimenez.model.users.UserType;
 import me.gimenez.services.ReservationService;
 import me.gimenez.services.RideService;
 import me.gimenez.services.UserService;
@@ -29,6 +29,9 @@ public class ClientHandler implements Runnable {
     private final RideService rideService;
     private final ReservationService reservationService;
     private final UserService userService;
+
+    private DriverRequestHandler driverRequestHandler;
+    private PassengerRequestHandler passengerRequestHandler;
 
     private User currentUser;
 
@@ -72,10 +75,6 @@ public class ClientHandler implements Runnable {
 
     void handleRequest(Request request) throws IOException {
         switch (request.type()){
-            case "PUBLISH_RIDE":
-                handlePublishRide(request);
-                break;
-
             case "LOGIN":
                 handleLogin(request);
                 break;
@@ -84,32 +83,9 @@ public class ClientHandler implements Runnable {
                 handleRegister(request);
                 break;
 
-            case "SEARCH_RIDES":
-                handleSearchRides(request);
-                break;
-
-            case "RESERVE_ITINERARY":
-                handleReserveItinerary(request);
-                break;
-
-            case "LIST_RESERVATIONS":
-                handleListReservations();
-                break;
-            case "DELETE_RESERVATION":
-                handleDeleteReservation(request);
+            default:
+                handleAuthenticatedRequest(request);
         }
-    }
-
-    void handlePublishRide(Request request) throws IOException {
-        CreateRideRequest publishRequest = mapper.convertValue(request.data(), CreateRideRequest.class);
-        Ride ride = rideService.publish(publishRequest, currentUser);
-
-        if (ride == null){
-            sendResponse(new Response("ERROR", "Não foi possível publicar a carona.", null));
-            return;
-        }
-
-        sendResponse(new Response("OK", "Carona publicada com sucesso!", ride));
     }
 
     void handleLogin (Request request) throws IOException {
@@ -120,6 +96,12 @@ public class ClientHandler implements Runnable {
             if (currentUser == null){
                 sendResponse(new Response("ERROR", "Usuário ou senha incorretos.", null));
                 return;
+            }
+
+            if (currentUser.userType() == UserType.DRIVER) {
+                driverRequestHandler = new DriverRequestHandler(mapper, out, rideService, reservationService, currentUser);
+            } else {
+                passengerRequestHandler = new PassengerRequestHandler(mapper, out, rideService, reservationService, currentUser);
             }
 
             sendResponse(new Response(
@@ -138,42 +120,19 @@ public class ClientHandler implements Runnable {
         userService.register(registerRequest);
         sendResponse(new Response("CREATED", "Nova conta registrada com sucesso.", null));
     }
-    void handleSearchRides(Request request) throws IOException {
-        SearchRideRequest searchRequest = mapper.convertValue(request.data(), SearchRideRequest.class);
-        List<Itinerary> itineraries = rideService.search(searchRequest);
 
-        if (itineraries.isEmpty()){
-            sendResponse(new Response("NOT_FOUND", "Não foram encontrados itinerários.", null));
+    void handleAuthenticatedRequest(Request request) throws IOException {
+        if (currentUser == null) {
+            sendResponse(new Response("ERROR", "Usuário não autenticado.", null));
             return;
         }
 
-        sendResponse(new Response("OK", "Busca realizada com sucesso.", itineraries));
-    }
-
-    void handleReserveItinerary(Request request) throws IOException {
-        CreateReservationRequest createReservationRequest = mapper.convertValue(request.data(), CreateReservationRequest.class);
-        Reservation reservation = reservationService.reserve(createReservationRequest.itinerary(), createReservationRequest.segmentsIds(), currentUser);
-
-        if (reservation != null){
-            sendResponse(new Response("OK", "Reserva realizada com sucesso.", null));
-        } else {
-            sendResponse(new Response("ERROR", "Não foi possível realizar a reserva.", null));
+        if (currentUser.userType() == UserType.DRIVER) {
+            driverRequestHandler.handle(request);
+            return;
         }
-    }
 
-    void handleListReservations() throws IOException {
-        List<Reservation> reservations = reservationService.listAllUserReservations(currentUser.id());
-        sendResponse(new Response("OK", "Busca realizada com sucesso.", reservations));
-    }
-
-    void handleDeleteReservation(Request request) throws IOException {
-        boolean success = reservationService.delete(mapper.convertValue(request.data(), DeleteReservationRequest.class).id());
-
-        if (success){
-            sendResponse(new Response("DELETED", "A reserva foi deletada realizada com sucesso.", null));
-        }else{
-            sendResponse(new Response("ERROR", "Não foi possível deletar a reserva.", null));
-        }
+        passengerRequestHandler.handle(request);
     }
 
 }
