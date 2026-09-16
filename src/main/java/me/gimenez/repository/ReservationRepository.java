@@ -69,7 +69,7 @@ public class ReservationRepository {
         }
     }
 
-    public boolean deleteBySegmentId(List<UUID> segmentIds){
+    public void deleteBySegmentId(List<UUID> segmentIds){
         reservations.values().removeIf(reservation ->
                 reservation.itinerary().segments().stream()
                         .anyMatch(segment -> segmentIds.contains(segment.getId()))
@@ -77,7 +77,6 @@ public class ReservationRepository {
 
         try {
             mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), reservations.values());
-            return true;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

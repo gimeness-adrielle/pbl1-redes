@@ -18,7 +18,7 @@ public class ClientApp {
 
     public ClientApp() {
         try {
-            client = new Client("localhost", 5000);
+            client = new Client();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

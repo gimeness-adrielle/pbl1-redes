@@ -25,11 +25,14 @@ public class Client {
 
     private final ObjectMapper mapper;
 
-    public Client(String ip, int port) throws IOException {
+    public Client() throws IOException {
         mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
 
-        Socket socket = new Socket(ip, port);
+        String host = System.getenv().getOrDefault("SERVER_HOST", "localhost");
+        int port = Integer.parseInt(System.getenv().getOrDefault("SERVER_PORT", "5000"));
+
+        Socket socket = new Socket(host, port);
         out = new PrintWriter(socket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
