@@ -44,6 +44,8 @@ public class Server {
                     userService,
                     mapper
             )).start();
+
+            System.out.println("Client connected.");
         }
 
     }

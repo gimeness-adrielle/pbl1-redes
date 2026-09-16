@@ -1,0 +1,11 @@
+services:
+
+  client:
+    build: .
+    container_name: client
+    command: ["client"]
+    environment:
+      SERVER_HOST: host.docker.internal
+      SERVER_PORT: 5000
+    stdin_open: true
+    tty: true
