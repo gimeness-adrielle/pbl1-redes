@@ -10,6 +10,7 @@ import me.gimenez.dto.ride.SearchRideRequest;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -24,7 +25,7 @@ public class PassengerApp {
 
     public void start() {
         while(true) {
-            System.out.println("Bem vindo ao painel de passageiro!");
+            System.out.println("\nBem vindo ao painel de passageiro!");
 
             System.out.println("Selecione uma opção: ");
             System.out.println("1- Buscar itinerários");
@@ -38,8 +39,9 @@ public class PassengerApp {
                 case "1": showSearchRides(); break;
                 case "2": showListReservations(); break;
                 case "3": showDeleteReservation(); break;
-                case "q": System.exit(0); break;
-                default: break;
+                case "q": return;
+                default:
+                    System.out.println("Opção inválida.");
             }
         }
     }
@@ -51,9 +53,20 @@ public class PassengerApp {
         System.out.println("Digite o destino: ");
         String destination = sc.nextLine();
 
-        System.out.println("Digite a data que deseja viajar (dd/MM/yyyy): ");
-        String dateInput =  sc.nextLine();
-        LocalDate date = LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        LocalDate date = null;
+
+        while (date == null){
+            try {
+                System.out.println("Digite a data que deseja viajar (dd/MM/yyyy): ");
+                String dateInput =  sc.nextLine();
+                if (dateInput.equalsIgnoreCase("q")){ return; }
+
+                date = LocalDate.parse(dateInput, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+            } catch (DateTimeParseException e) {
+                System.out.println("Formato inválido. Digite no formato válido (dd/MM/yyyy) ou digite 'q' para sair.");
+            }
+        }
 
         SearchRideRequest searchRequest = new SearchRideRequest(origin, destination, date);
 
@@ -71,15 +84,23 @@ public class PassengerApp {
             printItinerary(itinerary, i);
         }
 
-        System.out.println("Digite o número do itinerário desejado");
-        System.out.println("Ou digite 'q' para cancelar");
-        String choice =  sc.nextLine();
+        int idx;
+        while (true) {
+            System.out.println("Digite o número do itinerário desejado para reservar");
+            System.out.println("Ou digite 'q' para cancelar");
+            String choice =  sc.nextLine();
 
-        if ("q".equalsIgnoreCase(choice)){
-            return;
+            if (choice.equalsIgnoreCase("q")){ return; }
+
+            try {
+                idx = Integer.parseInt(choice);
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Itinerário não encontrado, digite um número válido.");
+            }
         }
 
-        Itinerary itinerary = itineraries.get(Integer.parseInt(choice)-1);
+        Itinerary itinerary = itineraries.get(idx-1);
 
         if (itinerary == null){
             System.out.println("Número do itinerário não encontrado.");
@@ -117,15 +138,30 @@ public class PassengerApp {
             return;
         }
 
-        System.out.println("Digite o número do itinerário para cancelar sua reserva: ");
-        System.out.println("Ou digite 'q' para cancelar");
-        String choice = sc.nextLine();
+        int idx;
+        while (true){
+            System.out.println("Digite o número do itinerário para cancelar sua reserva: ");
+            System.out.println("Ou digite 'q' para cancelar");
+            String choice = sc.nextLine();
 
-        if ("q".equalsIgnoreCase(choice)){
-            return;
+            if ("q".equalsIgnoreCase(choice)){
+                return;
+            }
+
+            try {
+                idx = Integer.parseInt(choice);
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Itinerário não encontrado, digite um número válido.");
+            }
         }
 
-        Reservation reservation = reservations.get(Integer.parseInt(choice)-1);
+        Reservation reservation = reservations.get(idx-1);
+
+        if (reservation == null){
+            System.out.println("Reserva não encontrada.");
+            return;
+        }
 
         Response response = client.deleteReservation(new DeleteReservationRequest(reservation.id()));
 

@@ -22,6 +22,7 @@ import java.util.List;
 public class Client {
     private final PrintWriter out;
     private final BufferedReader in;
+    private final Socket socket;
 
     private final ObjectMapper mapper;
 
@@ -32,9 +33,15 @@ public class Client {
         String host = System.getenv().getOrDefault("SERVER_HOST", "localhost");
         int port = Integer.parseInt(System.getenv().getOrDefault("SERVER_PORT", "5000"));
 
-        Socket socket = new Socket(host, port);
+        this.socket = new Socket(host, port);
         out = new PrintWriter(socket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    }
+
+    public void close() throws IOException {
+        socket.close();
+        out.close();
+        in.close();
     }
 
     public Response sendRequest(String type, Object data) throws IOException {
@@ -74,7 +81,6 @@ public class Client {
     public List<Ride> listRides(){
         try{
             Response response = sendRequest("LIST_RIDES", null);
-            System.out.println(response);
             return mapper.convertValue(response.data(), new TypeReference<>() {});
         } catch (IOException e) {
             throw new RuntimeException(e);

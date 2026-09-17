@@ -26,41 +26,58 @@ public class ClientApp {
         this.passengerApp = new PassengerApp(client);
     }
 
-    static void main(String[] args) {
+    static void main(String[] args) throws IOException {
         ClientApp app = new ClientApp();
         app.start();
     }
 
-    public void start() {
+    public void start() throws IOException {
         System.out.println("Olá, seja bem-vindo ao GoTogether!");
         showAuth();
     }
 
-    public void showAuth(){
-        System.out.println("Entre na sua conta ou registre-se!");
+    public void showAuth() throws IOException {
+        while (true){
+            System.out.println("\nEntre na sua conta ou registre-se!");
 
-        System.out.println("Selecione uma opção: ");
-        System.out.println("1- Entrar na conta");
-        System.out.println("2- Registrar uma conta");
-        System.out.println("q- Sair");
+            System.out.println("Selecione uma opção: ");
+            System.out.println("1- Entrar na conta");
+            System.out.println("2- Registrar uma conta");
+            System.out.println("q- Sair");
 
-        String choice = sc.nextLine();
+            String choice = sc.nextLine();
 
-        switch(choice) {
-            case "1": showLogin(); break;
-            case "2": showRegister(); break;
-            case "q": System.exit(0); break;
+            switch(choice) {
+                case "1": showLogin(); break;
+                case "2": showRegister(); break;
+                case "q": {
+                    System.out.println("Encerrando...");
+                    client.close();
+                    return;
+                }
+                default:
+                    System.out.println("Opção inválida.");
+            }
         }
-
     }
 
     public void showLogin (){
         while(true) {
+            System.out.println("\nDigite 'q' para sair à qualquer momento.");
+
             System.out.println("Digite seu username: ");
             String username = sc.nextLine();
 
+            if (username.equalsIgnoreCase("q")) {
+                return;
+            }
+
             System.out.println("Digite sua senha: ");
             String password = sc.nextLine();
+
+            if (password.equalsIgnoreCase("q")) {
+                return;
+            }
 
             LoginRequest request = new LoginRequest(username,password);
 
@@ -75,28 +92,43 @@ public class ClientApp {
 
             if (user.userType() == UserType.DRIVER){
                 driverApp.start();
+                break;
             } else {
                 passengerApp.start();
+                break;
             }
-
-            System.exit(0);
         }
     }
 
-    public void showRegister(){
+    public void showRegister() {
+        System.out.println("Digite 'q' para sair à qualquer momento.");
         System.out.println("Digite seu nome: ");
         String name = sc.nextLine();
+
+        if (name.equalsIgnoreCase("q")) {
+            return;
+        }
 
         System.out.println("Digite seu username: ");
         String username = sc.nextLine();
 
+        if (username.equalsIgnoreCase("q")) {
+            return;
+        }
+
         System.out.println("Digite sua senha: ");
         String password = sc.nextLine();
+
+        if (password.equalsIgnoreCase("q")) {
+            return;
+        }
 
         System.out.println("Você é motorista ou passageiro?");
         System.out.println("1- Motorista");
         System.out.println("2- Passageiro");
         String choice = sc.nextLine();
+
+        if (choice.equalsIgnoreCase("q")) {return;}
 
         UserType userType = null;
 
@@ -117,8 +149,6 @@ public class ClientApp {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        showAuth();
     }
 
 }

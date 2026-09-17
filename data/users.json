@@ -1,13 +1,1 @@
-[ {
-  "id" : "177568f1-d533-4ffa-aec0-04e91ec99047",
-  "name" : "Adrielle",
-  "username" : "adrielle255",
-  "password" : "senha123",
-  "userType" : "DRIVER"
-}, {
-  "id" : "8488d406-4279-484a-b12a-ccd89536a2f4",
-  "name" : "Toddynho",
-  "username" : "toddyn123",
-  "password" : "12345",
-  "userType" : "PASSENGER"
-} ]
+[ ]

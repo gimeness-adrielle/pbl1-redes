@@ -1,0 +1,78 @@
+[ {
+  "id" : "45faea0d-9489-401b-8f44-2b491dffd443",
+  "driverId" : "8d77dcc3-4f39-41aa-8d9c-dc22ee3f9ce0",
+  "route" : [ "Itaberaba", "Feira de Santana" ],
+  "date" : [ 2026, 9, 17 ],
+  "departureTime" : [ 10, 30 ],
+  "segments" : [ {
+    "id" : "cdc5edc3-d458-4e05-933b-cf0eb3f58f5e",
+    "origin" : "Itaberaba",
+    "destination" : "Feira de Santana",
+    "price" : 90.0,
+    "availableSeats" : 0
+  } ]
+}, {
+  "id" : "95304f27-277e-4e51-a23b-5a91b75d8e7a",
+  "driverId" : "8d77dcc3-4f39-41aa-8d9c-dc22ee3f9ce0",
+  "route" : [ "Feira de Santana", "Salvador" ],
+  "date" : [ 2026, 9, 17 ],
+  "departureTime" : [ 17, 30 ],
+  "segments" : [ {
+    "id" : "5d5e2ba0-241b-4b4c-834b-358e90149234",
+    "origin" : "Feira de Santana",
+    "destination" : "Salvador",
+    "price" : 60.0,
+    "availableSeats" : 1
+  } ]
+}, {
+  "id" : "d44f4a61-ae20-4531-8ee3-abca81ca933b",
+  "driverId" : "1081767b-315e-4972-a809-3bc4b040ad89",
+  "route" : [ "Feira de Santana", "Salvador", "Aracaju", "Maceio" ],
+  "date" : [ 2026, 9, 17 ],
+  "departureTime" : [ 10, 30 ],
+  "segments" : [ {
+    "id" : "ffe939a2-8586-47ff-b308-deba5df06df7",
+    "origin" : "Feira de Santana",
+    "destination" : "Salvador",
+    "price" : 60.0,
+    "availableSeats" : 2
+  }, {
+    "id" : "2330ae4f-8c7c-4e3e-a59d-fe367e54f857",
+    "origin" : "Salvador",
+    "destination" : "Aracaju",
+    "price" : 70.0,
+    "availableSeats" : 3
+  }, {
+    "id" : "794c32a0-ff7d-40b0-a1d4-6f0aeaa53a27",
+    "origin" : "Aracaju",
+    "destination" : "Maceio",
+    "price" : 76.0,
+    "availableSeats" : 3
+  } ]
+}, {
+  "id" : "eef16ded-c6a1-43f6-b705-78353e705503",
+  "driverId" : "8d77dcc3-4f39-41aa-8d9c-dc22ee3f9ce0",
+  "route" : [ "Vitoria da Conquista", "Feira de Santana" ],
+  "date" : [ 2026, 9, 17 ],
+  "departureTime" : [ 10, 30 ],
+  "segments" : [ {
+    "id" : "9eaf57fa-8d69-460f-9a60-b2bbec9fa2ed",
+    "origin" : "Vitoria da Conquista",
+    "destination" : "Feira de Santana",
+    "price" : 80.0,
+    "availableSeats" : 0
+  } ]
+}, {
+  "id" : "5090c42e-5161-40ae-87d9-ddf7b540ec36",
+  "driverId" : "8d77dcc3-4f39-41aa-8d9c-dc22ee3f9ce0",
+  "route" : [ "Barreiras", "Itaberaba" ],
+  "date" : [ 2026, 9, 17 ],
+  "departureTime" : [ 10, 30 ],
+  "segments" : [ {
+    "id" : "7c7b54e0-317a-459d-9954-7315e7a7cfc6",
+    "origin" : "Barreiras",
+    "destination" : "Itaberaba",
+    "price" : 80.0,
+    "availableSeats" : 1
+  } ]
+} ]

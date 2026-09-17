@@ -66,9 +66,7 @@ public class ReservationService {
         } catch (IOException e){
             return null;
         } finally {
-            locks.forEach((lock) -> {
-                lock.unlock();
-            });
+            locks.forEach(ReentrantLock::unlock);
         }
     }
 
@@ -82,10 +80,11 @@ public class ReservationService {
             return false;
         }
 
-        List<Segment> segments = reservation.itinerary().segments();
+        List<Segment> itinerarySegments = reservation.itinerary().segments();
 
         try {
-            for(Segment segment : segments){
+            for(Segment itinerarySegment : itinerarySegments){
+                Segment segment = rideRepository.findSegmentById(itinerarySegment.getId());
                 segment.setAvailableSeats(segment.getAvailableSeats() + 1);
             }
             rideRepository.saveAll();

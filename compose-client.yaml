@@ -1,9 +1,19 @@
 services:
 
-  client:
+  client1:
     build: .
-    container_name: client
+    container_name: client-1
     command: ["client"]
+    environment:
+      SERVER_HOST: host.docker.internal
+      SERVER_PORT: 5000
+    stdin_open: true
+    tty: true
+
+  client2:
+    build: .
+    container_name: client-2
+    command: [ "client" ]
     environment:
       SERVER_HOST: host.docker.internal
       SERVER_PORT: 5000

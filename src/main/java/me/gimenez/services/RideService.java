@@ -98,11 +98,14 @@ public class RideService {
 
     }
 
-    public List<Ride> listRides(){
+    public List<Ride> listRides(UUID driverId){
         try {
-            return rideRepository.findAllRides();
+            return rideRepository.findAllRides()
+                    .stream()
+                    .filter(ride -> ride.getDriverId().equals(driverId))
+                    .toList();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
@@ -119,7 +122,6 @@ public class RideService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
 
         return rideRepository.delete(id);
     }

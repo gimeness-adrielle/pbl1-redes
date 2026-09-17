@@ -1,0 +1,46 @@
+[ {
+  "id" : "b8dd0b81-3f7d-4279-92f7-60ede73d699e",
+  "passengerId" : "9a3f27c3-22e3-4460-ac3f-db0dd5110f71",
+  "itinerary" : {
+    "totalPrice" : 80.0,
+    "segments" : [ {
+      "id" : "9eaf57fa-8d69-460f-9a60-b2bbec9fa2ed",
+      "origin" : "Vitoria da Conquista",
+      "destination" : "Feira de Santana",
+      "price" : 80.0,
+      "availableSeats" : 1
+    } ]
+  }
+}, {
+  "id" : "e631aaf6-0334-40ed-a93b-8c8263348768",
+  "passengerId" : "9a3f27c3-22e3-4460-ac3f-db0dd5110f71",
+  "itinerary" : {
+    "totalPrice" : 90.0,
+    "segments" : [ {
+      "id" : "cdc5edc3-d458-4e05-933b-cf0eb3f58f5e",
+      "origin" : "Itaberaba",
+      "destination" : "Feira de Santana",
+      "price" : 90.0,
+      "availableSeats" : 1
+    } ]
+  }
+}, {
+  "id" : "df39f7f1-28d0-4c49-8071-421f31d87e2b",
+  "passengerId" : "c6bb57a0-6133-49c1-8e3b-18a542943e6d",
+  "itinerary" : {
+    "totalPrice" : 140.0,
+    "segments" : [ {
+      "id" : "9eaf57fa-8d69-460f-9a60-b2bbec9fa2ed",
+      "origin" : "Vitoria da Conquista",
+      "destination" : "Feira de Santana",
+      "price" : 80.0,
+      "availableSeats" : 2
+    }, {
+      "id" : "ffe939a2-8586-47ff-b308-deba5df06df7",
+      "origin" : "Feira de Santana",
+      "destination" : "Salvador",
+      "price" : 60.0,
+      "availableSeats" : 3
+    } ]
+  }
+} ]

@@ -1,0 +1,25 @@
+[ {
+  "id" : "c6bb57a0-6133-49c1-8e3b-18a542943e6d",
+  "name" : "Passageiro1",
+  "username" : "passageiro1",
+  "password" : "12345",
+  "userType" : "PASSENGER"
+}, {
+  "id" : "1081767b-315e-4972-a809-3bc4b040ad89",
+  "name" : "Motorista1",
+  "username" : "motorista1",
+  "password" : "12345",
+  "userType" : "DRIVER"
+}, {
+  "id" : "8d77dcc3-4f39-41aa-8d9c-dc22ee3f9ce0",
+  "name" : "Motorista2",
+  "username" : "motorista2",
+  "password" : "12345",
+  "userType" : "DRIVER"
+}, {
+  "id" : "9a3f27c3-22e3-4460-ac3f-db0dd5110f71",
+  "name" : "passageiro2",
+  "username" : "passageiro2",
+  "password" : "12345",
+  "userType" : "PASSENGER"
+} ]

@@ -101,7 +101,7 @@ public class ClientHandler implements Runnable {
             }
 
             if (currentUser.userType() == UserType.DRIVER) {
-                driverRequestHandler = new DriverRequestHandler(mapper, out, rideService, reservationService, currentUser);
+                driverRequestHandler = new DriverRequestHandler(mapper, out, rideService, currentUser);
             } else {
                 passengerRequestHandler = new PassengerRequestHandler(mapper, out, rideService, reservationService, currentUser);
             }

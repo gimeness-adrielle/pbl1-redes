@@ -18,19 +18,16 @@ public class DriverRequestHandler {
     private final PrintWriter out;
     private final ObjectMapper mapper;
     private final RideService rideService;
-    private final ReservationService reservationService;
 
     private final User user;
 
     public DriverRequestHandler(ObjectMapper mapper,
                                 PrintWriter out,
                                 RideService rideService,
-                                ReservationService reservationService,
                                 User user) {
         this.out = out;
         this.mapper = mapper;
         this.rideService = rideService;
-        this.reservationService = reservationService;
         this.user = user;
     }
 
@@ -68,8 +65,7 @@ public class DriverRequestHandler {
     }
 
     void handleListRides() throws IOException {
-        List<Ride> rides = rideService.listRides();
-        System.out.println(rides);
+        List<Ride> rides = rideService.listRides(user.id());
 
         if (rides == null){
             sendResponse(new Response("ERROR", "Não foi possível buscar suas caronas.", null));
