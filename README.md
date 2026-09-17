@@ -34,6 +34,12 @@ Em outro terminal (executar o cliente):
 docker compose -f compose-client.yaml up --build
 ```
 
+Para executar testes:
+
+```
+docker compose -f compose-test.yaml run --rm test
+```
+
 ### Executar em máquinas diferentes:
 
 Após executar o servidor, é necessário descobrir o endereço IP da máquina do servidor:
@@ -46,8 +52,8 @@ Na máquina do cliente, o endereço do servidor é configurado no arquivo `compo
 
 ```
 environment:
-    SERVER_HOST: 192.168.0.25
-    SERVER_PORT: 5000
+    SERVER_HOST: Seu_IP
+    SERVER_PORT: 7717
 ```
 
 Após isso, basta executar o cliente:
