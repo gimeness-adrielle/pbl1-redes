@@ -31,7 +31,7 @@ public class Client {
         mapper.registerModule(new JavaTimeModule());
 
         String host = System.getenv().getOrDefault("SERVER_HOST", "localhost");
-        int port = Integer.parseInt(System.getenv().getOrDefault("SERVER_PORT", "5000"));
+        int port = Integer.parseInt(System.getenv().getOrDefault("SERVER_PORT", "7717"));
 
         this.socket = new Socket(host, port);
         out = new PrintWriter(socket.getOutputStream(), true);
@@ -52,6 +52,12 @@ public class Client {
         out.println(json);
 
         String response = in.readLine();
+
+        if (response == null){
+            System.out.println("Não foi possível conectar ao servidor.");
+            System.out.println("Verifique se o servidor está disponível.");
+            System.exit(1);
+        }
 
         return mapper.readValue(response, Response.class);
     }

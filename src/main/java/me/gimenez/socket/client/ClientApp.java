@@ -16,12 +16,8 @@ public class ClientApp {
     private final PassengerApp passengerApp;
     private final Client client;
 
-    public ClientApp() {
-        try {
-            client = new Client();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public ClientApp() throws IOException {
+        client = new Client();
         this.driverApp = new DriverApp(client);
         this.passengerApp = new PassengerApp(client);
     }

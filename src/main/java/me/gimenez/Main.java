@@ -14,8 +14,13 @@ public class Main {
                 break;
 
             case "client":
-                ClientApp client = new ClientApp();
-                client.start();
+                try {
+                    ClientApp client = new ClientApp();
+                    client.start();
+                } catch (IOException e) {
+                    System.out.println("Não foi possível conectar ao servidor.");
+                    System.out.println("Verifique se o servidor está disponível.");
+                }
                 break;
         }
     }

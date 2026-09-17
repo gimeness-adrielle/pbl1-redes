@@ -30,9 +30,9 @@ public class Server {
     }
 
     public void start () throws IOException {
-        ServerSocket serverSocket = new ServerSocket(5000);
+        ServerSocket serverSocket = new ServerSocket(7717);
 
-        System.out.println("Server started on port 5000");
+        System.out.println("Server started on port 7717");
 
         while (true) {
             Socket clientSocket = serverSocket.accept();

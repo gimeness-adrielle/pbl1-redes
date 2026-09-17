@@ -4,6 +4,6 @@ services:
     container_name: server
     command: ["server"]
     ports:
-      - "5000:5000"
+      - "7717:7717"
     volumes:
         - ./data:/app/data

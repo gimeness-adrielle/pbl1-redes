@@ -1,0 +1,7 @@
+services:
+  test:
+    image: maven:3.9-eclipse-temurin-26
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: mvn test
