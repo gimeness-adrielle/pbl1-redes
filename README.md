@@ -25,15 +25,19 @@ de forma concorrente e atomicamente segura.
 Em um terminal (executar o servidor):
 
 ```
-mvn clean package
 docker compose up --build
 ```
 
 Em outro terminal (executar o cliente):
 
 ```
-mvn clean package
 docker compose -f compose-client.yaml up --build
+```
+
+Para executar testes:
+
+```
+docker compose -f compose-test.yaml run --rm test
 ```
 
 ### Executar em máquinas diferentes:
@@ -48,14 +52,13 @@ Na máquina do cliente, o endereço do servidor é configurado no arquivo `compo
 
 ```
 environment:
-    SERVER_HOST: 192.168.0.25
-    SERVER_PORT: 5000
+    SERVER_HOST: Seu_IP
+    SERVER_PORT: 7717
 ```
 
 Após isso, basta executar o cliente:
 
 ```
-mvn clean package
 docker compose -f compose-client.yaml up --build
 ```
 
