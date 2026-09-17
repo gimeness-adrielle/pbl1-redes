@@ -25,14 +25,12 @@ de forma concorrente e atomicamente segura.
 Em um terminal (executar o servidor):
 
 ```
-mvn clean package
 docker compose up --build
 ```
 
 Em outro terminal (executar o cliente):
 
 ```
-mvn clean package
 docker compose -f compose-client.yaml up --build
 ```
 
@@ -55,7 +53,6 @@ environment:
 Após isso, basta executar o cliente:
 
 ```
-mvn clean package
 docker compose -f compose-client.yaml up --build
 ```
 
