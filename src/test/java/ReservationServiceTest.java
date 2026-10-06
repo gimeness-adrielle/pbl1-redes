@@ -1,8 +1,8 @@
 import me.gimenez.model.Itinerary;
 import me.gimenez.model.Reservation;
 import me.gimenez.model.Segment;
-import me.gimenez.model.users.User;
-import me.gimenez.model.users.UserType;
+import me.gimenez.model.User;
+import me.gimenez.model.UserType;
 import me.gimenez.repository.ReservationRepository;
 import me.gimenez.repository.RideRepository;
 import me.gimenez.services.ReservationService;
@@ -48,13 +48,10 @@ public class ReservationServiceTest {
 
         Segment segment = new Segment(segmentId, "Feira de Santana", "Salvador", 50.0, 2);
 
-        Itinerary itinerary = new Itinerary(50.0, List.of(segment));
-
         when(rideRepository.findSegmentById(segmentId)).thenReturn(segment);
 
-        Reservation reservation = service.reserve(itinerary, List.of(segmentId), user);
+        service.reserve(List.of(segmentId), user);
 
-        assertNotNull(reservation);
         assertEquals(1, segment.getAvailableSeats());
 
         verify(reservationRepository).save(any(Reservation.class));
@@ -74,10 +71,8 @@ public class ReservationServiceTest {
         when(rideRepository.findSegmentById(segmentId1)).thenReturn(segment1);
 
         when(rideRepository.findSegmentById(segmentId2)).thenReturn(segment2);
+        service.reserve(List.of(segmentId1, segmentId2), user);
 
-        Reservation reservation = service.reserve(itinerary, List.of(segmentId1, segmentId2), user);
-
-        assertNotNull(reservation);
         assertEquals(1, segment1.getAvailableSeats());
         assertEquals(2, segment2.getAvailableSeats());
 
@@ -98,10 +93,8 @@ public class ReservationServiceTest {
         when(rideRepository.findSegmentById(segmentId1)).thenReturn(segment1);
 
         when(rideRepository.findSegmentById(segmentId2)).thenReturn(segment2);
+        service.reserve(List.of(segmentId1, segmentId2), user);
 
-        Reservation reservation = service.reserve(itinerary, List.of(segmentId1, segmentId2), user);
-
-        assertNull(reservation);
         assertEquals(2, segment1.getAvailableSeats());
         assertEquals(0, segment2.getAvailableSeats());
 
@@ -113,14 +106,11 @@ public class ReservationServiceTest {
     @Test
     void should_delete_reservation() throws IOException {
         UUID segmentId = UUID.randomUUID();
-
         Segment segment = new Segment(segmentId, "Feira de Santana", "Salvador", 60.0, 3);
-
-        Itinerary itinerary = new Itinerary(60.0, List.of(segment));
 
         when(rideRepository.findSegmentById(segmentId)).thenReturn(segment);
 
-        Reservation reservation = service.reserve(itinerary, List.of(segmentId), user);
+        Reservation reservation = service.reserve(List.of(segmentId), user);
 
         assertEquals(2, segment.getAvailableSeats());
 
@@ -151,7 +141,7 @@ public class ReservationServiceTest {
             futures.add(executorService.submit(() -> {
                 User user = new User(UUID.randomUUID(), "name", "username", "password", UserType.PASSENGER);
                 latch.await();
-                return service.reserve(itinerary, List.of(segmentId), user);
+                return service.reserve(List.of(segmentId), user);
             }));
         }
 
@@ -184,8 +174,6 @@ public class ReservationServiceTest {
         Segment segment2 = new Segment(segmentId2, "Feira de Santana", "Itaberaba", 80, 1);
         Segment segment3 = new Segment(segmentId3, "Itaberaba", "Vitoria da Conquista", 100, 1);
 
-        Itinerary itinerary = new Itinerary(240.0, List.of(segment1, segment2, segment3));
-
         when(rideRepository.findSegmentById(segmentId1)).thenReturn(segment1);
         when(rideRepository.findSegmentById(segmentId2)).thenReturn(segment2);
         when(rideRepository.findSegmentById(segmentId3)).thenReturn(segment3);
@@ -201,7 +189,7 @@ public class ReservationServiceTest {
                 System.out.println(
                         "Thread: " + Thread.currentThread().getName()
                 );
-                Reservation reservation = service.reserve(itinerary, List.of(segmentId1, segmentId2, segmentId3), user);
+                Reservation reservation = service.reserve(List.of(segmentId1, segmentId2, segmentId3), user);
                 System.out.println(
                         Thread.currentThread().getName()
                                 + " → "

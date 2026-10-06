@@ -3,7 +3,10 @@ services:
     build: .
     container_name: server
     command: ["server"]
+    environment:
+      SOCKET_PORT: ${SOCKET_PORT}
     ports:
-      - "7717:7717"
+      - "${SOCKET_PORT}:${SOCKET_PORT}"
+      - "${REST_PORT}:8080"
     volumes:
         - ./data:/app/data

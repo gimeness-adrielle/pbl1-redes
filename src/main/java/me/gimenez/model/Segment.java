@@ -1,26 +1,39 @@
 package me.gimenez.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
+import lombok.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Setter @Getter
+@AllArgsConstructor
 public class Segment {
-    private UUID id;
-    private String origin;
-    private String destination;
-    private double price;
-    private int availableSeats;
+        @Setter(AccessLevel.NONE)
+        private final UUID id;
 
-    public  Segment(UUID id, String origin, String destination, double price, int availableSeats) {
-        this.id = id;
-        this.origin = origin;
-        this.destination = destination;
-        this.price = price;
-        this.availableSeats = availableSeats;
-    }
+        @Setter(AccessLevel.NONE)
+        private final String serverId;
+
+        @NotBlank(message = "Informar a origem do trecho é obrigatório")
+        private final String origin;
+
+        @NotBlank(message = "Informar o destino do trecho é obrigatório.")
+        private final String destination;
+
+        @PositiveOrZero(message = "O preço não pode ser negativo.")
+        private final double price;
+
+        @PositiveOrZero(message = "Os assentos não podem ser negativos.")
+        private int availableSeats;
+
+        @Future(message = "A data não pode ser antiga.")
+        private final LocalDateTime departureAt;
+
+        @Future(message = "A data não pode ser antiga.")
+        private final LocalDateTime arrivalAt;
 }
+

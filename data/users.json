@@ -1,7 +1,7 @@
 [ {
-  "id" : "4741e245-55bb-4473-988c-e1f09b741009",
+  "id" : "1fcedd93-48e3-460b-88ec-2d86a8ba6e3a",
+  "email" : "motorista1@gmail.com",
   "name" : "motorista1",
-  "username" : "motorista1",
-  "password" : "12345",
+  "password" : "123456789",
   "userType" : "DRIVER"
 } ]

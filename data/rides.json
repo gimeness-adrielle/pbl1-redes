@@ -1,1 +1,25 @@
-[ ]
+[ {
+  "id" : "caeabd7c-e3b1-4b3b-8332-cf7b00d63cb0",
+  "driverId" : "1fcedd93-48e3-460b-88ec-2d86a8ba6e3a",
+  "seats" : 3,
+  "departureAt" : [ 2026, 10, 10, 10, 30 ],
+  "segments" : [ {
+    "id" : "a3e5c858-09c0-4760-b99e-fa028cbf2be8",
+    "serverId" : "E1",
+    "origin" : "Feira de Santana",
+    "destination" : "Salvador",
+    "price" : 60.0,
+    "availableSeats" : 3,
+    "departureAt" : [ 2026, 10, 10, 10, 30 ],
+    "arrivalAt" : [ 2026, 10, 10, 11, 30 ]
+  }, {
+    "id" : "8ccfbb38-32f3-4d45-a160-e59a4b88f891",
+    "serverId" : "E1",
+    "origin" : "Salvador",
+    "destination" : "Aracaju",
+    "price" : 80.0,
+    "availableSeats" : 3,
+    "departureAt" : [ 2026, 10, 10, 12, 0 ],
+    "arrivalAt" : [ 2026, 10, 10, 19, 0 ]
+  } ]
+} ]

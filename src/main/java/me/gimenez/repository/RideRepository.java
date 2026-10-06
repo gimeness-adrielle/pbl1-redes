@@ -3,21 +3,26 @@ package me.gimenez.repository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import me.gimenez.exceptions.NotFoundException;
 import me.gimenez.model.Ride;
 import me.gimenez.model.Segment;
+import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
+@Repository
 public class RideRepository {
 
     private final ObjectMapper mapper;
     private final Path path = Paths.get("data", "rides.json");
-    private final Map<UUID, Ride> rides = new HashMap<>();
-    private final Map<UUID, Segment> segments = new HashMap<>();
+    private final Map<UUID, Ride> rides = new ConcurrentHashMap<>();
+    private final Map<UUID, Segment> segments = new ConcurrentHashMap<>();
 
     public RideRepository(ObjectMapper mapper) {
         this.mapper = mapper;
@@ -31,8 +36,8 @@ public class RideRepository {
                 List<Ride> rides = mapper.readValue(path.toFile(), new TypeReference<List<Ride>>() {});
 
                 for (Ride ride : rides) {
-                    this.rides.put(ride.getId(), ride);
-                    for (Segment segment : ride.getSegments()) {
+                    this.rides.put(ride.id(), ride);
+                    for (Segment segment : ride.segments()) {
                         segments.put(segment.getId(), segment);
                     }
                 }
@@ -43,21 +48,45 @@ public class RideRepository {
 
     }
 
-    public List<Ride> findAllRides() throws IOException {
-        return new ArrayList<>(rides.values());
+    public List<Ride> getRidesByDriver(UUID driverId){
+        return rides.values().stream()
+                .filter(ride -> ride.driverId().equals(driverId))
+                .toList();
     }
 
     public void save(Ride ride) throws IOException {
-        rides.put(ride.getId(), ride);
-        for (Segment segment : ride.getSegments()) {
+        rides.put(ride.id(), ride);
+        for (Segment segment : ride.segments()) {
             segments.put(segment.getId(), segment);
         }
 
         mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), rides.values());
     }
 
+    public List<Segment> searchItinerary(LocalDate date){
+        return segments.values().stream()
+                .filter(segment -> segment.getDepartureAt().toLocalDate().equals(date)
+                        && segment.getAvailableSeats() > 0)
+                .toList();
+    }
+
     public Segment findSegmentById(UUID id) throws IOException {
         return segments.get(id);
+    }
+
+    public List<Segment> findSegmentsById(List<UUID> ids){
+        synchronized (segments) {
+            if (!segments.keySet().containsAll(ids)) {
+                return null;
+            }
+            List<Segment> currentSegments = ids.stream().map(segments::get).toList();
+            boolean haveAvailableSeats = currentSegments.stream().allMatch(segment -> segment.getAvailableSeats() > 0);
+
+            if (!haveAvailableSeats) {
+                return null;
+            }
+            return currentSegments;
+        }
     }
 
     public Ride findRideById(UUID id) throws IOException {
@@ -68,20 +97,24 @@ public class RideRepository {
         mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), rides.values());
     }
 
-    public boolean delete(UUID id) {
+    public void deleteReserveInSegment(List<UUID> segmentIds) throws IOException{
+        for (UUID id : segmentIds){
+            segments.computeIfPresent(id, (uuid, segment) -> {
+                segment.setAvailableSeats(segment.getAvailableSeats() - 1);
+                return segment;
+            });
+            saveAll();
+        }
+    }
+
+    public void delete(UUID id) throws IOException {
         Ride ride = rides.remove(id);
+        if (ride == null){ return; }
 
-        if (ride == null) { return false; }
-
-        for (Segment segment : ride.getSegments()) {
+        for (Segment segment : ride.segments()) {
             segments.remove(segment.getId());
         }
 
-        try {
-            saveAll();
-            return true;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        saveAll();
     }
 }

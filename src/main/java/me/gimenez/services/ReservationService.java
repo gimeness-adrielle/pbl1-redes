@@ -1,20 +1,22 @@
 package me.gimenez.services;
 
-import me.gimenez.model.Itinerary;
+import me.gimenez.exceptions.PersistenceErrorException;
+import me.gimenez.exceptions.ReservationNotCreatedException;
 import me.gimenez.model.Reservation;
 import me.gimenez.model.Segment;
-import me.gimenez.model.users.User;
+import me.gimenez.model.User;
 import me.gimenez.repository.ReservationRepository;
 import me.gimenez.repository.RideRepository;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
+@Service
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final RideRepository rideRepository;
@@ -29,7 +31,7 @@ public class ReservationService {
         return segmentLocks.computeIfAbsent(segmentId, id -> new ReentrantLock());
     }
 
-    public Reservation reserve(Itinerary itinerary, List<UUID> segmentIds, User user){
+    public void reserve(List<UUID> segmentIds, User user){
         // Locks
         List<UUID> sortedSegmentIds = segmentIds.stream().sorted().toList();    // Ordena os IDs para resolver deadlocks
         List<ReentrantLock> locks = sortedSegmentIds.stream().map(this::getLock).toList();
@@ -42,29 +44,20 @@ public class ReservationService {
         try {
             // Lista de segmentos verdadeiros do sistema: não é correto confiar na lista enviada no request, pois no
             // sistema pode ter mudado dados do segmento, e a lista do request vai estar desatualizada.
-            List<Segment> currentSegments = new ArrayList<>();
-
-            // Encontra os segmentos do request no repositório
-            for (UUID segmentId : segmentIds) {
-                Segment segment = rideRepository.findSegmentById(segmentId);
-                if (segment.getAvailableSeats() <= 0){
-                    return null;
-                }
-
-                currentSegments.add(segment);
+            List<Segment> currentSegments = rideRepository.findSegmentsById(segmentIds);
+            if (currentSegments == null || currentSegments.isEmpty()) {
+                throw new ReservationNotCreatedException("Não foi possível reservar o itinerário. Tente novamente mais tarde.");
             }
 
-            Reservation reservation = new Reservation(UUID.randomUUID(), user.id(), itinerary);
+            Reservation reservation = new Reservation(UUID.randomUUID(), user.id(), currentSegments);
 
             reservationRepository.save(reservation);
             for (Segment segment : currentSegments) {
                 segment.setAvailableSeats(segment.getAvailableSeats() - 1);
             }
             rideRepository.saveAll();
-
-            return reservation;
         } catch (IOException e){
-            return null;
+            throw new ReservationNotCreatedException("Não foi possível reservar o itinerário. Tente novamente mais tarde." + e.getMessage());
         } finally {
             locks.forEach(ReentrantLock::unlock);
         }
@@ -74,24 +67,15 @@ public class ReservationService {
         return reservationRepository.listAllUserReservations(userId);
     }
 
-    public boolean delete(UUID id){
+    public void delete(UUID id){
         Reservation reservation = reservationRepository.getById(id);
-        if(reservation == null){
-            return false;
-        }
-
-        List<Segment> itinerarySegments = reservation.itinerary().segments();
+        List<UUID> reservedSegments = reservation.segments().stream().map(Segment::getId).toList();
 
         try {
-            for(Segment itinerarySegment : itinerarySegments){
-                Segment segment = rideRepository.findSegmentById(itinerarySegment.getId());
-                segment.setAvailableSeats(segment.getAvailableSeats() + 1);
-            }
-            rideRepository.saveAll();
-
-            return reservationRepository.delete(id);
+            rideRepository.deleteReserveInSegment(reservedSegments);
+            reservationRepository.delete(id);
         } catch (IOException e) {
-            return false;
+            throw new PersistenceErrorException("Não foi possível fazer cancelar a reserva.", e);
         }
     }
 

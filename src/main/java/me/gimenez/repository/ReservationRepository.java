@@ -3,7 +3,9 @@ package me.gimenez.repository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import me.gimenez.exceptions.PersistenceErrorException;
 import me.gimenez.model.Reservation;
+import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Repository
 public class ReservationRepository {
     private final ObjectMapper mapper;
     private final Path path = Paths.get("data", "reservations.json");
@@ -21,15 +24,13 @@ public class ReservationRepository {
 
     public ReservationRepository(ObjectMapper mapper) {
         this.mapper = mapper;
-        mapper.registerModule(new JavaTimeModule());
-
         loadData();
     }
 
     public void loadData(){
         try {
             if (Files.exists(path)) {
-                List<Reservation> reservations = mapper.readValue(path.toFile(), new TypeReference<List<Reservation>>() {});
+                List<Reservation> reservations = mapper.readValue(path.toFile(), new TypeReference<>() {});
 
                 for (Reservation reservation : reservations) {
                     this.reservations.put(reservation.id(), reservation);
@@ -42,7 +43,6 @@ public class ReservationRepository {
 
     public void save(Reservation reservation) throws IOException {
         reservations.put(reservation.id(), reservation);
-
         mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), reservations.values());
     }
 
@@ -69,17 +69,11 @@ public class ReservationRepository {
         }
     }
 
-    public void deleteBySegmentId(List<UUID> segmentIds){
-        reservations.values().removeIf(reservation ->
-                reservation.itinerary().segments().stream()
-                        .anyMatch(segment -> segmentIds.contains(segment.getId()))
-        );
+    public void deleteBySegmentId(List<UUID> segmentsToDelete) throws IOException {
+        reservations.values().removeIf(reservation -> reservation.segments().stream()
+                        .anyMatch(segment -> segmentsToDelete.contains(segment.getId())));
 
-        try {
-            mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), reservations.values());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), reservations.values());
     }
 
 }

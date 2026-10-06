@@ -5,21 +5,7 @@ services:
     container_name: client-1
     command: ["client"]
     environment:
-      SERVER_HOST: host.docker.internal
-      SERVER_PORT: 7717
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    stdin_open: true
-    tty: true
-
-  client2:
-    build: .
-    container_name: client-2
-    command: [ "client" ]
-    environment:
-      SERVER_HOST: host.docker.internal
-      SERVER_PORT: 7717
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      SERVER_IP: ${SERVER_IP}
+      SOCKET_PORT: ${SOCKET_PORT}
     stdin_open: true
     tty: true
