@@ -5,6 +5,7 @@ import me.gimenez.server.exceptions.ServerUnavailableException;
 import me.gimenez.server.socket.Server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 import java.io.IOException;
 

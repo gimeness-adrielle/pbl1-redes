@@ -46,7 +46,7 @@ public class ReservationServiceTest {
 
     // The tests below create reservations WITHOUT concurrency handling.
     @Test
-    void should_reserve_all_segments() throws IOException {
+    void shouldReserveAllSegments_whenHasSeats() throws IOException {
         UUID segmentId1 = UUID.randomUUID();
         LocalDateTime departureAt1 = LocalDateTime.now().plusDays(2);
         LocalDateTime arrivalAt1 = departureAt1.plusHours(1);
@@ -80,7 +80,7 @@ public class ReservationServiceTest {
     }
 
     @Test
-    void should_not_reserve_when_one_segment_has_no_seats() throws IOException {
+    void shouldNotReserve_whenOneSegmentHasNoSeats() throws IOException {
         UUID segmentId1 = UUID.randomUUID();
         UUID segmentId2 = UUID.randomUUID();
 
@@ -112,7 +112,7 @@ public class ReservationServiceTest {
 
     // Tests to delete a reservation WITHOUT concurrency handling.
     @Test
-    void should_delete_reservation() throws IOException {
+    void shouldDeleteReservation() throws IOException {
         UUID segmentId = UUID.randomUUID();
 
         Segment segment = new Segment(
@@ -136,7 +136,7 @@ public class ReservationServiceTest {
     // The tests below create bookings WITH concurrency handling, simulating multiple users and bookings within
     // the same segments, using a thread pool and a countdown latch to ensure the bookings are executed simultaneously.
     @Test
-    void should_reserve_oneSegment_with_concurrence() throws Exception {
+    void shouldPreventOverbooking_whenUsersReserveConcurrently() throws Exception {
         UUID segmentId = UUID.randomUUID();
 
         Segment segment = new Segment(
@@ -181,7 +181,7 @@ public class ReservationServiceTest {
     }
 
     @Test
-    void should_reserve_segments_with_concurrence() throws Exception {
+    void shouldPreventOverbooking_whenUsersReserveConcurrentlyMultipleSegments() throws Exception {
         UUID segmentId1 = UUID.randomUUID();
         UUID segmentId2 = UUID.randomUUID();
 

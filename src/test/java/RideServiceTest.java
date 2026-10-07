@@ -1,14 +1,9 @@
-import me.gimenez.domain.dto.requests.RideRequest;
-import me.gimenez.domain.dto.requests.SegmentRequest;
+
 import me.gimenez.domain.dto.responses.ItineraryResponse;
-import me.gimenez.domain.models.Ride;
 import me.gimenez.domain.models.Segment;
-import me.gimenez.domain.models.User;
-import me.gimenez.domain.models.UserType;
 import me.gimenez.server.repository.RideRepository;
 import me.gimenez.domain.dto.requests.ItineraryRequest;
 import me.gimenez.server.services.RideService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,7 +27,7 @@ public class RideServiceTest {
     private RideService service;
 
     @Test
-    void should_return_oneItinerary_with_oneSegment() {
+    void shouldReturnOneItinerary_whenHasOneSegment() {
         LocalDateTime departureAt = LocalDateTime.of(2026, 9, 15, 10, 0);
         LocalDateTime arrivalAt = LocalDateTime.of(2026, 9, 15, 11, 30);
 
@@ -58,7 +52,7 @@ public class RideServiceTest {
     }
 
     @Test
-    void should_return_oneItinerary_with_twoSegments() throws IOException {
+    void shouldReturnOneItinerary_whenHasTwoSegments() throws IOException {
         LocalDateTime departureAt = LocalDateTime.of(2026, 9, 15, 10, 0);
         LocalDateTime arrivalAt1 = LocalDateTime.of(2026, 9, 15, 11, 30);
         LocalDateTime arrivalAt2 = LocalDateTime.of(2026, 9, 15, 13, 30);
@@ -86,6 +80,33 @@ public class RideServiceTest {
         assertEquals(2, itineraries.getFirst().segments().size());
         assertEquals("Salvador", itineraries.getFirst().segments().getFirst().getOrigin());
         assertEquals("Vitória da Conquista",  itineraries.getFirst().segments().getLast().getDestination());
+    }
+
+    @Test
+    void shouldNotReturnItinerary_whenDateTimeIsNotAligned(){
+        LocalDateTime departureAt = LocalDateTime.of(2026, 9, 15, 10, 0);
+        LocalDateTime arrivalAt = LocalDateTime.of(2026, 9, 15, 11, 30);
+
+        Segment segment1 = new Segment(
+                UUID.randomUUID(), null,
+                "Salvador", "Feira de Santana",
+                60, 3,
+                departureAt, arrivalAt
+        );
+        Segment segment2 = new Segment(
+                UUID.randomUUID(), null,
+                "Feira de Santana", "Vitória da Conquista",
+                60, 3,
+                departureAt, arrivalAt
+        );
+
+        LocalDate searchDate = LocalDate.of(2026, 9, 15);
+        ItineraryRequest request = new ItineraryRequest("Salvador", "Vitória da Conquista", searchDate);
+
+        when(repository.searchItinerary(searchDate)).thenReturn(List.of(segment1, segment2));
+        List<ItineraryResponse> itineraries = service.searchItinerary(request);
+
+        assertEquals(0, itineraries.size());
     }
 
 }

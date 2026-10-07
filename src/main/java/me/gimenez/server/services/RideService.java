@@ -1,5 +1,6 @@
 package me.gimenez.server.services;
 
+import lombok.RequiredArgsConstructor;
 import me.gimenez.domain.dto.requests.RideRequest;
 import me.gimenez.domain.dto.requests.SegmentRequest;
 import me.gimenez.server.exceptions.NotFoundException;
@@ -8,6 +9,7 @@ import me.gimenez.domain.dto.responses.ItineraryResponse;
 import me.gimenez.domain.models.Ride;
 import me.gimenez.domain.models.Segment;
 import me.gimenez.domain.models.User;
+import me.gimenez.server.exceptions.RideNotCreatedException;
 import me.gimenez.server.repository.ReservationRepository;
 import me.gimenez.server.repository.RideRepository;
 import me.gimenez.domain.dto.requests.ItineraryRequest;
@@ -18,24 +20,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@RequiredArgsConstructor
 @Service
 public class RideService {
 
     private final RideRepository rideRepository;
     private final ReservationRepository reservationRepository;
 
-    public RideService(RideRepository rideRepository, ReservationRepository reservationRepository) {
-        this.rideRepository = rideRepository;
-        this.reservationRepository = reservationRepository;
-    }
-
-    public Ride create(RideRequest request, User driver){
+    public void create(RideRequest request, User driver){
         List<Segment> segments = new ArrayList<>();
 
         for (SegmentRequest s: request.segments()){
+            if(s.departureAt().isAfter(s.arrivalAt())){
+                throw new RideNotCreatedException("A data e hora de chegada não pode ser antes da data de saída.");
+            }
             Segment segment = new Segment(
                     UUID.randomUUID(),
-                    "E1", // Por enquanto hardcoded.
+                    "E1", // TODO: por enquanto hardcoded.
                     s.origin(),
                     s.destination(),
                     s.price(),
@@ -57,7 +58,6 @@ public class RideService {
 
         try {
             rideRepository.save(ride);
-            return ride;
         } catch (IOException e) {
             throw new PersistenceErrorException("Falha ao salvar a nova viagem no disco.", e);
         }
@@ -88,6 +88,14 @@ public class RideService {
 
             if (path.contains(segment)) { continue; }
 
+            if (!path.isEmpty()) {
+                Segment previous = path.getLast();
+
+                if (segment.getDepartureAt().isBefore(previous.getArrivalAt())) {
+                    continue;
+                }
+            }
+
             path.add(segment);
             dfs(path, segment.getDestination(), destination, segments, itineraries);
             path.removeLast();
@@ -106,9 +114,9 @@ public class RideService {
                 throw new NotFoundException("A viagem com o ID " + rideId + " não foi encontrada.");
             }
 
-            // Deleta todas as reservas que tem aqueles trechos da carona como itinerários.
-            List<UUID> segmentToDelete = ride.segments().stream().map(Segment::getId).toList();
-            reservationRepository.deleteBySegmentId(segmentToDelete);
+            // Delete all bookings containing the segments to be deleted.
+            List<UUID> segmentsToDelete = ride.segments().stream().map(Segment::getId).toList();
+            reservationRepository.deleteBySegmentId(segmentsToDelete);
 
             rideRepository.delete(rideId);
         } catch (IOException e) {

@@ -83,6 +83,11 @@ public class DriverApp {
             LocalDateTime arrivalAt = readDateTime("Data e horário de chegada em " + destination + " (dd-MM-yyyy HH-mm): ");
             if (arrivalAt == null) { return; }
 
+            if(departureAt.isAfter(arrivalAt)){
+                System.out.println("A data e hora de chegada não pode ser antes da data de saída.");
+                return;
+            }
+
             segments.add(driverClient.createSegmentRequest(origin, destination, price, departureAt, arrivalAt));
         }
 

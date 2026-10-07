@@ -53,7 +53,7 @@ public class DriverHandler {
             rideService.create(rideRequest, user);
 
             clientHandler.sendResponse(Response.ok("Viagem publicada com sucesso!", null));
-        } catch (PersistenceErrorException e) {
+        } catch (Exception e) {
             clientHandler.sendResponse(Response.error(e.getMessage()));
         }
     }
