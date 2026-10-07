@@ -1,10 +1,10 @@
 package me.gimenez.client.view;
 
 import me.gimenez.client.PassengerClient;
-import me.gimenez.model.Itinerary;
-import me.gimenez.model.Reservation;
-import me.gimenez.model.Segment;
-import me.gimenez.dto.responses.Response;
+import me.gimenez.domain.dto.responses.ItineraryResponse;
+import me.gimenez.domain.models.Reservation;
+import me.gimenez.domain.models.Segment;
+import me.gimenez.domain.dto.responses.Response;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -59,7 +59,7 @@ public class PassengerApp {
 
         LocalDate date = readLocalDate("Digite a data que deseja viajar (dd/MM/yyyy): ");
 
-        List<Itinerary> itineraries = passengerClient.searchItinerary(origin, destination, date);
+        List<ItineraryResponse> itineraries = passengerClient.searchItinerary(origin, destination, date);
 
         if (itineraries.isEmpty()){
             System.out.println("Não foram encontrados itinerários.");
@@ -67,20 +67,20 @@ public class PassengerApp {
         }
 
         for (int i=0; i<itineraries.size(); i++) {
-            Itinerary itinerary = itineraries.get(i);
-            printItinerary(itinerary.segments(), itinerary.totalPrice(), i);
+            ItineraryResponse itineraryResponse = itineraries.get(i);
+            printItinerary(itineraryResponse.segments(), itineraryResponse.totalPrice(), i);
         }
 
         Integer idx = readInteger("Para reservar, digite o número do itinerário desejado, ou digite 'q' para cancelar.\n");
         if (idx == null){ return; }
 
-        Itinerary itinerary = itineraries.get(idx-1);
-        if (itinerary == null){
+        ItineraryResponse itineraryResponse = itineraries.get(idx-1);
+        if (itineraryResponse == null){
             System.out.println("Número do itinerário não encontrado.");
             return;
         }
 
-        Response response = passengerClient.reserveItinerary(itinerary.segments());
+        Response response = passengerClient.reserveItinerary(itineraryResponse.segments());
 
         System.out.println(response.message());
     }

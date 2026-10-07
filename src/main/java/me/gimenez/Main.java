@@ -1,8 +1,8 @@
 package me.gimenez;
 
 import me.gimenez.client.view.ClientApp;
-import me.gimenez.exceptions.ServerUnavailableException;
-import me.gimenez.server.Server;
+import me.gimenez.server.exceptions.ServerUnavailableException;
+import me.gimenez.server.socket.Server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

@@ -3,10 +3,10 @@ package me.gimenez.client;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import me.gimenez.dto.responses.Response;
-import me.gimenez.dto.requests.RideRequest;
-import me.gimenez.dto.responses.RideResponse;
-import me.gimenez.dto.requests.SegmentRequest;
+import me.gimenez.domain.dto.responses.Response;
+import me.gimenez.domain.dto.requests.RideRequest;
+import me.gimenez.domain.dto.responses.RideResponse;
+import me.gimenez.domain.dto.requests.SegmentRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;

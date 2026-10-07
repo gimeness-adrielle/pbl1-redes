@@ -2,9 +2,9 @@ package me.gimenez.client.view;
 
 import lombok.RequiredArgsConstructor;
 import me.gimenez.client.DriverClient;
-import me.gimenez.dto.responses.RideResponse;
-import me.gimenez.dto.requests.SegmentRequest;
-import me.gimenez.dto.responses.SegmentResponse;
+import me.gimenez.domain.dto.responses.RideResponse;
+import me.gimenez.domain.dto.requests.SegmentRequest;
+import me.gimenez.domain.dto.responses.SegmentResponse;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

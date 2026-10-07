@@ -2,10 +2,10 @@ package me.gimenez.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import me.gimenez.dto.responses.Response;
-import me.gimenez.dto.requests.LoginRequest;
-import me.gimenez.dto.requests.RegisterRequest;
-import me.gimenez.model.UserType;
+import me.gimenez.domain.dto.responses.Response;
+import me.gimenez.domain.dto.requests.LoginRequest;
+import me.gimenez.domain.dto.requests.RegisterRequest;
+import me.gimenez.domain.models.UserType;
 
 @RequiredArgsConstructor
 public class AuthClient {
