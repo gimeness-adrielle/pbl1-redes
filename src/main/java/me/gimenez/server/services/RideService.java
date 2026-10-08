@@ -31,10 +31,20 @@ public class RideService {
     private final RideRepository rideRepository;
     private final ReservationRepository reservationRepository;
 
+    /** This function calls the {@link RideRepository} class to filter and retrieve all
+     * the rides for the driver specified by the unique identifier in the parameter.
+     * @param driverId the unique identifier of the driver wanting his rides.
+     * @return the list containing all of that driver's rides.
+     */
     public List<Ride> getRidesByDriver(UUID driverId){
         return rideRepository.getRidesByDriver(driverId);
     }
 
+    /**
+     * This function is responsible for creating a ride from the request data.
+     * @param request these are data submitted by the user, specifying details of the ride to be created.
+     * @param driver this is the driver creating this ride. This is useful to for identifying who the ride belongs to.
+     */
     public void create(RideRequest request, User driver){
         List<Segment> segments = new ArrayList<>();
 
@@ -71,6 +81,15 @@ public class RideService {
         }
     }
 
+
+    /** Retrieves itineraries based on the data submitted in the request. This function filters for
+     * segments with available seats on the date specified in the request. It then executes a DFS
+     * algorithm to find itineraries covering all possible segments, including those from other
+     * associated servers.
+     * @param request this is sent by the passenger to search for itineraries with a specified origin,
+     *                destination and date.
+     * @return a list containing all the itineraries found, with the required data specified in the request.
+     */
     public List<ItineraryResponse> searchItinerary(ItineraryRequest request){
         List<Segment> segments = rideRepository.searchItinerary(request.date());
 
@@ -92,6 +111,14 @@ public class RideService {
         return itineraries;
     }
 
+    /** Retrieves itineraries based on the data submitted in the request. This function filters for
+     * segments with available seats on the date specified in the request. It then executes a DFS
+     * algorithm to find itineraries covering all possible segments, including those from other
+     * associated servers.
+     * @param request this is sent by other servers to discover for new paths and form all possible
+     *               itineraries, not just local itineraries.
+     * @return a list containing all the itineraries found, with the required data specified in the request.
+     */
     public List<ItineraryResponse> searchItinerary(PeerItineraryRequest request){
         if (request.visitedServers().contains(serverProperties.id())){
             return null;
@@ -116,6 +143,17 @@ public class RideService {
         return itineraries;
     }
 
+    /** This is a DFS algorithm to find all possible itineraries, taking advantage of the
+     * backtracking operation of a DFS. It covers itineraries of the others servers,
+     * executing a DFS in each one.
+     * @param path the path to be formed by recursion.
+     * @param currentCity the current city to be explored.
+     * @param destination the desired destination.
+     * @param earliestDeparture the arrival at previous city, to ensures temporal alignment of
+     *                          the segments.
+     * @param segments segments list of segments with available seats and on the user-specified date.
+     * @param itineraries itineraries to be formed.
+     */
     public void dfs(List<Segment> path,
                     String currentCity,
                     String destination,
@@ -153,6 +191,12 @@ public class RideService {
         }
     }
 
+    /** Deletes a ride.
+     * Iterates over the ride's segments to delete all reservations that include those ride's segments.
+     * Throws {@link NotFoundException} if the unique identifier of the specified ride does not exist.
+     * Throws {@link PersistenceErrorException} if any repository operation has failed.
+     * @param rideId unique identifier of the ride to be deleted.
+     */
     public void deleteRide(UUID rideId){
         try{
             Ride ride = rideRepository.delete(rideId);

@@ -1,5 +1,6 @@
 package me.gimenez.server.services;
 
+import lombok.RequiredArgsConstructor;
 import me.gimenez.server.exceptions.PersistenceErrorException;
 import me.gimenez.server.exceptions.ReservationNotCreatedException;
 import me.gimenez.domain.models.Reservation;
@@ -16,16 +17,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
+@RequiredArgsConstructor
 @Service
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final RideRepository rideRepository;
     private final Map<UUID, ReentrantLock> segmentLocks = new ConcurrentHashMap<>();
-
-    public ReservationService(ReservationRepository reservationRepository, RideRepository rideRepository) {
-        this.reservationRepository = reservationRepository;
-        this.rideRepository = rideRepository;
-    }
 
     private ReentrantLock getLock (UUID segmentId){
         return segmentLocks.computeIfAbsent(segmentId, id -> new ReentrantLock());

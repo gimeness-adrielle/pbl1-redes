@@ -29,6 +29,9 @@ public class RideRepository {
         loadData();
     }
 
+    /** Loads the ride's data JSON into a {@link ConcurrentHashMap}, where the key is the object's
+     * unique identifier and the value is the object itself. This is necessary to speed up queries.
+     */
     public void loadData(){
         try {
             if (Files.exists(path)) {
@@ -46,6 +49,11 @@ public class RideRepository {
         }
     }
 
+    /** This function is responsible for saving a specified new Ride. It saves data both the
+     * in memory {@link ConcurrentHashMap} and JSON format.
+     * @param ride the new ride to be persisted on data.
+     * @throws IOException thrown if the Jackson library fails to write to the JSON file.
+     */
     public void save(Ride ride) throws IOException {
         rides.put(ride.id(), ride);
         for (Segment segment : ride.segments()) {
@@ -59,8 +67,8 @@ public class RideRepository {
         mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), rides.values());
     }
 
-    /** This function filters the rides data to retrieve all rides belonging
-     *  to the driver specified by unique identifier in the parameter.
+    /** This function filters the rides data to retrieve all rides belonging to the
+     * driver specified by unique identifier in the parameter.
      * @param driverId the unique identifier of the driver wanting his rides.
      * @return the list containing all of that driver's rides.
      */
@@ -70,6 +78,11 @@ public class RideRepository {
                 .toList();
     }
 
+    /** This function retrieves a set of segments specified by their unique identifier.
+     * It is an atomic operation: it returns null if at least one of the segment is not found.
+     * @param ids the segments to be retrieved.
+     * @return the segments found or null.
+     */
     public List<Segment> findSegmentsById(List<UUID> ids) {
         if (!segments.keySet().containsAll(ids)) {
             return null;
@@ -80,13 +93,24 @@ public class RideRepository {
                 .toList();
     }
 
+    /** Filters segments by the specified date and whether they have more than zero available
+     * seats.
+     * @param date the date to filter by.
+     * @return the filtered segments.
+     */
     public List<Segment> searchItinerary(LocalDate date){
         return segments.values().stream()
-                .filter(segment -> segment.getDepartureAt().toLocalDate().equals(date)
+                .filter(segment -> (segment.getDepartureAt().toLocalDate().isEqual(date)
+                        || segment.getDepartureAt().toLocalDate().isAfter(date))
                         && segment.getAvailableSeats() > 0)
                 .toList();
     }
 
+    /** This operation cancels seat reservations on segments. It increases the number of
+     * seats available on each specified segments.
+     * @param segmentIds the segments for which reservations are to be canceled.
+     * @throws IOException if the Jackson library fails to write to the JSON file.
+     */
     public void releaseSeatsInSegments(List<UUID> segmentIds) throws IOException{
         for (UUID id : segmentIds){
             segments.computeIfPresent(id, (uuid, segment) -> {
@@ -97,6 +121,10 @@ public class RideRepository {
         saveAll();
     }
 
+    /** Deletes a ride, and its respective segments from the in-memory data.
+     * @param id the unique identifier of the ride to be deleted.
+     * @return the deleted ride or null if the ride is not found.
+     */
     public Ride delete(UUID id) {
         Ride ride = rides.remove(id);
         for (Segment segment : ride.segments()) {
@@ -105,6 +133,11 @@ public class RideRepository {
         return ride;
     }
 
+    /** Checks if there are persisted segments with the origin specified in the parameter.
+     * @param origin the desired origin to check.
+     * @return True if there is a match between the segment's origin and the desired origin.
+     * Otherwise, returns False.
+     */
     public boolean hasSegmentsWithThatOrigin(String origin){
         return segments.values().stream().anyMatch(segment -> segment.getOrigin().equals(origin));
     }
