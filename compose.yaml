@@ -5,8 +5,8 @@ services:
     command: ["server"]
     environment:
       SOCKET_PORT: ${SOCKET_PORT}
-      PEER_SERVERS: "http://server2:8080,http://server3:8080"
-      SERVER_ID: "server-a"
+      PEER_SERVER: ${PEER_SERVER}
+      SERVER_ID: ${SERVER_ID}
     ports:
       - "${SOCKET_PORT}:${SOCKET_PORT}"
       - "${REST_PORT}:8080"

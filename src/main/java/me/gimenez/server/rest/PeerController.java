@@ -5,6 +5,7 @@ import me.gimenez.domain.dto.requests.PeerReservationRequest;
 import me.gimenez.domain.dto.responses.ItineraryResponse;
 import me.gimenez.domain.dto.requests.PeerItineraryRequest;
 import me.gimenez.domain.dto.responses.ReservationResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,8 +17,13 @@ public class PeerController {
     private final PeerService service;
 
     @PostMapping("/search")
-    public List<ItineraryResponse> search(@RequestBody PeerItineraryRequest request){
-        return null;
+    public ResponseEntity<List<ItineraryResponse>> search(@RequestBody PeerItineraryRequest request){
+        List<ItineraryResponse> responses = service.search(request);
+        if (responses == null){
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(responses);
     }
 
     @PostMapping("/reserve")

@@ -44,13 +44,6 @@ public class RideRepository {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-    }
-
-    public List<Ride> getRidesByDriver(UUID driverId){
-        return rides.values().stream()
-                .filter(ride -> ride.driverId().equals(driverId))
-                .toList();
     }
 
     public void save(Ride ride) throws IOException {
@@ -62,10 +55,18 @@ public class RideRepository {
         mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), rides.values());
     }
 
-    public List<Segment> searchItinerary(LocalDate date){
-        return segments.values().stream()
-                .filter(segment -> segment.getDepartureAt().toLocalDate().equals(date)
-                        && segment.getAvailableSeats() > 0)
+    public void saveAll() throws IOException {
+        mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), rides.values());
+    }
+
+    /** This function filters the rides data to retrieve all rides belonging
+     *  to the driver specified by unique identifier in the parameter.
+     * @param driverId the unique identifier of the driver wanting his rides.
+     * @return the list containing all of that driver's rides.
+     */
+    public List<Ride> getRidesByDriver(UUID driverId){
+        return rides.values().stream()
+                .filter(ride -> ride.driverId().equals(driverId))
                 .toList();
     }
 
@@ -79,12 +80,11 @@ public class RideRepository {
                 .toList();
     }
 
-    public Ride findRideById(UUID id) throws IOException {
-        return rides.get(id);
-    }
-
-    public void saveAll() throws IOException {
-        mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), rides.values());
+    public List<Segment> searchItinerary(LocalDate date){
+        return segments.values().stream()
+                .filter(segment -> segment.getDepartureAt().toLocalDate().equals(date)
+                        && segment.getAvailableSeats() > 0)
+                .toList();
     }
 
     public void releaseSeatsInSegments(List<UUID> segmentIds) throws IOException{
@@ -97,14 +97,15 @@ public class RideRepository {
         saveAll();
     }
 
-    public void delete(UUID id) throws IOException {
+    public Ride delete(UUID id) {
         Ride ride = rides.remove(id);
-        if (ride == null){ return; }
-
         for (Segment segment : ride.segments()) {
             segments.remove(segment.getId());
         }
+        return ride;
+    }
 
-        saveAll();
+    public boolean hasSegmentsWithThatOrigin(String origin){
+        return segments.values().stream().anyMatch(segment -> segment.getOrigin().equals(origin));
     }
 }
