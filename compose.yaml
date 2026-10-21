@@ -1,14 +1,45 @@
 services:
-  server:
+  server1:
     build: .
-    container_name: server
+    container_name: server1
     command: ["server"]
     environment:
-      SOCKET_PORT: ${SOCKET_PORT}
-      PEER_SERVER: ${PEER_SERVER}
-      SERVER_ID: ${SERVER_ID}
+      SERVER_ID: ${SERVER1_ID}
+      SERVER_IP: ${SERVER1_IP}
+      SOCKET_PORT: ${SERVER1_SOCKET_PORT}
+      PEER_SERVERS: ${SERVER1_PEERS}
     ports:
-      - "${SOCKET_PORT}:${SOCKET_PORT}"
-      - "${REST_PORT}:8080"
+      - "${SERVER1_SOCKET_PORT}:${SERVER1_SOCKET_PORT}"
+      - "${SERVER1_REST_PORT}:8080"
     volumes:
-        - ./data:/app/data
+      - ./data/server1:/app/data
+
+  server2:
+    build: .
+    container_name: server2
+    command: ["server"]
+    environment:
+      SERVER_ID: ${SERVER2_ID}
+      SERVER_IP: ${SERVER2_IP}
+      SOCKET_PORT: ${SERVER2_SOCKET_PORT}
+      PEER_SERVERS: ${SERVER2_PEERS}
+    ports:
+      - "${SERVER2_SOCKET_PORT}:${SERVER2_SOCKET_PORT}"
+      - "${SERVER2_REST_PORT}:8080"
+    volumes:
+      - ./data/server2:/app/data
+
+  server3:
+    build: .
+    container_name: server3
+    command: ["server"]
+    environment:
+      SERVER_ID: ${SERVER3_ID}
+      SERVER_IP: ${SERVER3_IP}
+      SOCKET_PORT: ${SERVER3_SOCKET_PORT}
+      PEER_SERVERS: ${SERVER3_PEERS}
+    ports:
+      - "${SERVER3_SOCKET_PORT}:${SERVER3_SOCKET_PORT}"
+      - "${SERVER3_REST_PORT}:8080"
+    volumes:
+      - ./data/server3:/app/data

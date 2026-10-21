@@ -1,37 +1,46 @@
 package me.gimenez.server.rest;
 
 import lombok.RequiredArgsConstructor;
-import me.gimenez.domain.dto.requests.PeerItineraryRequest;
-import me.gimenez.domain.dto.responses.ItineraryResponse;
+import lombok.extern.slf4j.Slf4j;
+import me.gimenez.domain.models.Segment;
 import me.gimenez.util.PeerProperties;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class PeerClient {
     private final PeerProperties peerProperties;
     private final RestClient restClient;
+    private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
-    public List<ItineraryResponse> searchItineraries(String origin,
-                                                     String destination,
-                                                     LocalDateTime departureTime,
-                                                     Set<String> visitedServers){
-        PeerItineraryRequest request = new PeerItineraryRequest(origin, destination, departureTime, visitedServers);
+    public List<Segment> fetchSegments(LocalDate date){
+        List<CompletableFuture<List<Segment>>> futures = peerProperties.servers().stream()
+                .map(peer -> CompletableFuture
+                        .supplyAsync(() -> fetchFrom(peer, date), executor)
+                        .exceptionally(e -> List.of())
+                ).toList();
 
-        ResponseEntity<List<ItineraryResponse>> response = restClient.post()
-                .uri(peerProperties.peerServer() + "/api/itineraries/search")
-                .body(request)
+        return futures.stream().map(CompletableFuture::join)
+                .flatMap(List::stream)
+                .toList();
+    }
+
+    private List<Segment> fetchFrom(String peer, LocalDate date){
+        List<Segment> body = restClient.get()
+                .uri(peer + "/api/rides/segments?date={date}", date)
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<>() {});
-
-        // TODO: validar se recebeu realmente os itinerários ou recebeu 404.
-        return response.getBody();
+                .body(new ParameterizedTypeReference<>(){});
+        log.info("Peer {} returned {} segments",
+                peer, body == null ? 0 : body.size());
+        return body == null ? List.of() : body;
     }
 }

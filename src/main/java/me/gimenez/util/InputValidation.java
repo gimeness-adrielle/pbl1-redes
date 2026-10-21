@@ -1,11 +1,15 @@
 package me.gimenez.util;
 
+import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class InputValidation {
     private static final Scanner sc = new Scanner(System.in);
@@ -82,5 +86,24 @@ public class InputValidation {
 
     public static boolean isQuitting (String input){
         return "q".equalsIgnoreCase(input);
+    }
+
+    public static String normalize(String city) {
+        if (city == null || city.isBlank()) {
+            return "";
+        }
+
+        String normalized = Normalizer.normalize(
+                        city.trim(),
+                        Normalizer.Form.NFD
+                )
+                .replaceAll("\\p{M}", "")
+                .replaceAll("\\s+", " ")
+                .toLowerCase(Locale.ROOT);
+
+        return Arrays.stream(normalized.split(" "))
+                .map(word -> word.substring(0, 1).toUpperCase(Locale.ROOT)
+                        + word.substring(1))
+                .collect(Collectors.joining(" "));
     }
 }

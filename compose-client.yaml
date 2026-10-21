@@ -1,11 +1,30 @@
 services:
-
   client1:
     build: .
-    container_name: client-1
+    container_name: client1
     command: ["client"]
     environment:
-      SERVER_IP: ${SERVER_IP}
-      SOCKET_PORT: ${SOCKET_PORT}
+      SERVER_IP: ${SERVER1_IP}
+      SOCKET_PORT: ${SERVER1_SOCKET_PORT}
+    stdin_open: true
+    tty: true
+
+  client2:
+    build: .
+    container_name: client2
+    command: ["client"]
+    environment:
+      SERVER_IP: ${SERVER2_IP}
+      SOCKET_PORT: ${SERVER2_SOCKET_PORT}
+    stdin_open: true
+    tty: true
+
+  client3:
+    build: .
+    container_name: client3
+    command: ["client"]
+    environment:
+      SERVER_IP: ${SERVER3_IP}
+      SOCKET_PORT: ${SERVER3_SOCKET_PORT}
     stdin_open: true
     tty: true

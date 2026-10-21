@@ -2,8 +2,8 @@ package me.gimenez.util;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.List;
+import java.util.Set;
 
 @ConfigurationProperties(prefix = "peer")
-public record PeerProperties(List<String> servers) {
+public record PeerProperties(Set<String> servers) {
 }

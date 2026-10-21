@@ -61,7 +61,7 @@ public class DriverApp {
             String city = sc.nextLine();
             if (isQuitting(city)){ return; }
 
-            routes.add(city);
+            routes.add(normalize(city));
         }
 
         for (int i = 0; i < routes.size() - 1; i++) {

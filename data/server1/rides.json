@@ -1,0 +1,16 @@
+[ {
+  "id" : "14cc708b-ddda-476d-9ff3-cdb8c9792059",
+  "driverId" : "fce3ab34-5ce2-482d-b9b5-2b09598d30fc",
+  "seats" : 2,
+  "departureAt" : [ 2026, 10, 25, 8, 30 ],
+  "segments" : [ {
+    "id" : "840afc32-1374-4485-a3b1-29bac5bbcdb7",
+    "serverId" : null,
+    "origin" : "Feira De Santana",
+    "destination" : "Salvador",
+    "price" : 60.0,
+    "availableSeats" : 2,
+    "departureAt" : [ 2026, 10, 25, 8, 30 ],
+    "arrivalAt" : [ 2026, 10, 25, 9, 30 ]
+  } ]
+} ]

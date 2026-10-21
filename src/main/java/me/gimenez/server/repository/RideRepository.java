@@ -100,8 +100,8 @@ public class RideRepository {
      */
     public List<Segment> searchItinerary(LocalDate date){
         return segments.values().stream()
-                .filter(segment -> (segment.getDepartureAt().toLocalDate().isEqual(date)
-                        || segment.getDepartureAt().toLocalDate().isAfter(date))
+                .filter(segment -> (!segment.getDepartureAt().toLocalDate().isBefore(date)
+                        && !segment.getDepartureAt().toLocalDate().isAfter(date.plusDays(5)))
                         && segment.getAvailableSeats() > 0)
                 .toList();
     }

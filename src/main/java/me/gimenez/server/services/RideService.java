@@ -1,7 +1,7 @@
 package me.gimenez.server.services;
 
 import lombok.RequiredArgsConstructor;
-import me.gimenez.domain.dto.requests.PeerItineraryRequest;
+import lombok.extern.slf4j.Slf4j;
 import me.gimenez.domain.dto.requests.RideRequest;
 import me.gimenez.domain.dto.requests.SegmentRequest;
 import me.gimenez.server.exceptions.NotFoundException;
@@ -19,9 +19,11 @@ import me.gimenez.util.ServerProperties;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class RideService {
@@ -54,7 +56,7 @@ public class RideService {
             }
             Segment segment = new Segment(
                     UUID.randomUUID(),
-                    "E1", // TODO: por enquanto hardcoded.
+                    serverProperties.id(),
                     s.origin(),
                     s.destination(),
                     s.price(),
@@ -81,6 +83,9 @@ public class RideService {
         }
     }
 
+    public List<Segment> localSegments(LocalDate date){
+        return rideRepository.searchItinerary(date);
+    }
 
     /** Retrieves itineraries based on the data submitted in the request. This function filters for
      * segments with available seats on the date specified in the request. It then executes a DFS
@@ -91,7 +96,16 @@ public class RideService {
      * @return a list containing all the itineraries found, with the required data specified in the request.
      */
     public List<ItineraryResponse> searchItinerary(ItineraryRequest request){
-        List<Segment> segments = rideRepository.searchItinerary(request.date());
+        List<Segment> segments = new ArrayList<>(localSegments(request.date()));
+
+        // It should retrieve all segments from all peers servers. So it do a request to get segments from others servers.
+        List<Segment> remoteSegments = peerclient.fetchSegments(request.date());
+        log.info("Local segments: {}", segments.size());
+        log.info("Remote segments: {}", remoteSegments.size());
+
+        segments.addAll(remoteSegments);
+
+        log.info("Total segments for DFS: {}", segments.size());
 
         List<ItineraryResponse> itineraries = new ArrayList<>();
         List<Segment> path = new ArrayList<>();
@@ -108,23 +122,8 @@ public class RideService {
         return itineraries;
     }
 
-    /** Retrieves itineraries based on the data submitted in the request. This function filters for
-     * segments with available seats on the date specified in the request. It then executes a DFS
-     * algorithm to find itineraries covering all possible segments, including those from other
-     * associated servers.
-     * @param request this is sent by other servers to discover for new paths and form all possible
-     *               itineraries, not just local itineraries.
-     * @return a list containing all the itineraries found, with the required data specified in the request.
-     */
-    public List<ItineraryResponse> searchItinerary(PeerItineraryRequest request){
-        List<Segment> segments = rideRepository.searchItinerary(request.earliestDeparture().toLocalDate());
-
-        return null;
-    }
-
     /** This is a DFS algorithm to find all possible itineraries, taking advantage of the
-     * backtracking operation of a DFS. It covers itineraries of the others servers,
-     * executing a DFS in each one.
+     * backtracking operation of a DFS.
      * @param path the path to be formed by recursion.
      * @param currentCity the current city to be explored.
      * @param destination the desired destination.

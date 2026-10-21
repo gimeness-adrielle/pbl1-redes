@@ -59,7 +59,7 @@ public class PassengerApp {
 
         LocalDate date = readLocalDate("Digite a data que deseja viajar (dd/MM/yyyy): ");
 
-        List<ItineraryResponse> itineraries = passengerClient.searchItinerary(origin, destination, date);
+        List<ItineraryResponse> itineraries = passengerClient.searchItinerary(normalize(origin), normalize(destination), date);
 
         if (itineraries.isEmpty()){
             System.out.println("Não foram encontrados itinerários.");
