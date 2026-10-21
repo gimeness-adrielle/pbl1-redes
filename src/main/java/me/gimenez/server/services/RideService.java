@@ -95,8 +95,6 @@ public class RideService {
 
         List<ItineraryResponse> itineraries = new ArrayList<>();
         List<Segment> path = new ArrayList<>();
-        Set<String> visitedServers = new HashSet<>();
-        visitedServers.add(serverProperties.id());
 
         dfs(
                 path,
@@ -105,7 +103,6 @@ public class RideService {
                 request.date().atStartOfDay(),
                 segments,
                 itineraries
-//                visitedServers
         );
 
         return itineraries;
@@ -120,27 +117,9 @@ public class RideService {
      * @return a list containing all the itineraries found, with the required data specified in the request.
      */
     public List<ItineraryResponse> searchItinerary(PeerItineraryRequest request){
-        if (request.visitedServers().contains(serverProperties.id())){
-            return null;
-        }
-        request.visitedServers().add(serverProperties.id());
-
         List<Segment> segments = rideRepository.searchItinerary(request.earliestDeparture().toLocalDate());
 
-        List<ItineraryResponse> itineraries = new ArrayList<>();
-        List<Segment> path = new ArrayList<>();
-
-        dfs(
-                path,
-                request.origin(),
-                request.destination(),
-                request.earliestDeparture(),
-                segments,
-                itineraries
-//                request.visitedServers()
-        );
-
-        return itineraries;
+        return null;
     }
 
     /** This is a DFS algorithm to find all possible itineraries, taking advantage of the
@@ -160,7 +139,6 @@ public class RideService {
                     LocalDateTime earliestDeparture,
                     List<Segment> segments,
                     List<ItineraryResponse> itineraries
-//                    Set<String> visitedServers
     ){
         if (currentCity.equals(destination)) {
             double totalPrice = path.stream().mapToDouble(Segment::getPrice).sum();
@@ -185,7 +163,6 @@ public class RideService {
                     segment.getArrivalAt(),
                     segments,
                     itineraries
-//                    visitedServers
             );
             path.removeLast();
         }

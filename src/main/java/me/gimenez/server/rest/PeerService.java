@@ -22,7 +22,7 @@ public class PeerService {
             return List.of();
         }
 
-        return rideService.searchItinerary(request);
+        return null;
     }
 
     public Reservation reserve (PeerReservationRequest request){

@@ -11,7 +11,7 @@ import org.springframework.web.client.RestClient;
 import java.time.Duration;
 
 @Configuration
-@EnableConfigurationProperties(PeerProperties.class)
+@EnableConfigurationProperties({PeerProperties.class, ServerProperties.class})
 public class Config {
     @Bean
     public ObjectMapper mapper() {
