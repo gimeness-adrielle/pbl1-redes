@@ -1,10 +1,9 @@
 package me.gimenez.domain.models;
 
 public enum TransactionStatus {
+    PREPARING,
     PREPARED,
-    PENDING,
-    COMMITED,
-    ROLL_BACK,
-    ABORT,
-    FINISHED
+    COMMITTING,
+    COMMITTED,
+    ABORTED,
 }

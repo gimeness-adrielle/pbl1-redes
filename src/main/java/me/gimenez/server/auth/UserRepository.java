@@ -1,4 +1,4 @@
-package me.gimenez.server.repository;
+package me.gimenez.server.auth;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

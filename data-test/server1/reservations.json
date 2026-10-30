@@ -1,0 +1,33 @@
+[ {
+  "id" : "5b7f2efe-c775-456b-9faa-de4e485cece2",
+  "passengerId" : "dda28b53-c1e4-44e3-b1a3-31828a3f91c5",
+  "segments" : [ {
+    "id" : "00000000-0000-0000-0000-000000000001",
+    "serverId" : "server-1",
+    "origin" : "Salvador",
+    "destination" : "Feira De Santana",
+    "price" : 60.0,
+    "availableSeats" : 3,
+    "departureAt" : [ 2029, 11, 3, 7, 30 ],
+    "arrivalAt" : [ 2029, 11, 3, 8, 30 ]
+  }, {
+    "id" : "00000000-0000-0000-0000-000000000002",
+    "serverId" : "server-2",
+    "origin" : "Feira De Santana",
+    "destination" : "Vitoria Da Conquista",
+    "price" : 80.0,
+    "availableSeats" : 3,
+    "departureAt" : [ 2029, 11, 3, 9, 30 ],
+    "arrivalAt" : [ 2029, 11, 3, 14, 30 ]
+  }, {
+    "id" : "00000000-0000-0000-0000-000000000004",
+    "serverId" : "server-3",
+    "origin" : "Vitoria Da Conquista",
+    "destination" : "Montes Claros",
+    "price" : 100.0,
+    "availableSeats" : 3,
+    "departureAt" : [ 2029, 11, 3, 15, 30 ],
+    "arrivalAt" : [ 2029, 11, 3, 20, 30 ]
+  } ],
+  "totalPrice" : 240.0
+} ]

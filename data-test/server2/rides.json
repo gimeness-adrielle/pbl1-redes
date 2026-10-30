@@ -1,0 +1,31 @@
+[ {
+  "id" : "20000000-0000-0000-0000-000000000000",
+  "driverId" : "c2e41a2c-6cb5-45ec-8daa-21e41972230f",
+  "seats" : 3,
+  "departureAt" : [ 2029, 11, 3, 9, 30 ],
+  "segments" : [ {
+    "id" : "00000000-0000-0000-0000-000000000002",
+    "serverId" : "server-2",
+    "origin" : "Feira De Santana",
+    "destination" : "Vitoria Da Conquista",
+    "price" : 80.0,
+    "availableSeats" : 2,
+    "departureAt" : [ 2029, 11, 3, 9, 30 ],
+    "arrivalAt" : [ 2029, 11, 3, 14, 30 ]
+  } ]
+}, {
+  "id" : "30000000-0000-0000-0000-000000000000",
+  "driverId" : "30a14aff-a123-4df5-a846-143d88ff6ced",
+  "seats" : 3,
+  "departureAt" : [ 2029, 11, 3, 9, 30 ],
+  "segments" : [ {
+    "id" : "00000000-0000-0000-0000-000000000003",
+    "serverId" : "server-2",
+    "origin" : "Serrinha",
+    "destination" : "Feira De Santana",
+    "price" : 80.0,
+    "availableSeats" : 3,
+    "departureAt" : [ 2029, 11, 3, 9, 30 ],
+    "arrivalAt" : [ 2029, 11, 3, 14, 30 ]
+  } ]
+} ]

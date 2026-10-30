@@ -1,7 +1,49 @@
 services:
-  test:
-    image: maven:3.9-eclipse-temurin-26
-    working_dir: /app
+  server1:
+    build: .
+    container_name: server1
+    command: ["server"]
+    env_file:
+      - .env
+    environment:
+      SERVER_ID: server-1
+      SOCKET_PORT: ${SERVER1_SOCKET_PORT}
+      SPRING_PROFILES_ACTIVE: test
+    ports:
+      - "${SERVER1_SOCKET_PORT}:${SERVER1_SOCKET_PORT}"
+      - "${SERVER1_REST_PORT}:8080"
     volumes:
-      - .:/app
-    command: mvn test
+      - ./data-test/server1:/app/data
+
+  server2:
+    build: .
+    container_name: server2
+    command: ["server"]
+    env_file:
+      - .env
+    environment:
+      SERVER_ID: server-2
+      SOCKET_PORT: ${SERVER2_SOCKET_PORT}
+      SPRING_PROFILES_ACTIVE: test
+    ports:
+      - "${SERVER2_SOCKET_PORT}:${SERVER2_SOCKET_PORT}"
+      - "${SERVER2_REST_PORT}:8080"
+    volumes:
+      - ./data-test/server2:/app/data
+
+  server3:
+    build: .
+    container_name: server3
+    command: ["server"]
+    env_file:
+      - .env
+    environment:
+      SERVER_ID: server-3
+      SOCKET_PORT: ${SERVER3_SOCKET_PORT}
+      SPRING_PROFILES_ACTIVE: test
+    ports:
+      - "${SERVER3_SOCKET_PORT}:${SERVER3_SOCKET_PORT}"
+      - "${SERVER3_REST_PORT}:8080"
+    volumes:
+      - ./data-test/server3:/app/data
+

@@ -1,11 +1,10 @@
-package me.gimenez.server.services;
+package me.gimenez.server.auth;
 
 import lombok.RequiredArgsConstructor;
 import me.gimenez.server.exceptions.EmailAlreadyExistsException;
 import me.gimenez.server.exceptions.InvalidUserException;
 import me.gimenez.server.exceptions.UserNotCreatedException;
 import me.gimenez.domain.models.User;
-import me.gimenez.server.repository.UserRepository;
 import me.gimenez.domain.dto.requests.LoginRequest;
 import me.gimenez.domain.dto.requests.RegisterRequest;
 import org.springframework.stereotype.Service;

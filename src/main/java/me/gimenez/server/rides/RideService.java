@@ -1,4 +1,4 @@
-package me.gimenez.server.services;
+package me.gimenez.server.rides;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,11 +11,10 @@ import me.gimenez.domain.models.Ride;
 import me.gimenez.domain.models.Segment;
 import me.gimenez.domain.models.User;
 import me.gimenez.server.exceptions.RideNotCreatedException;
-import me.gimenez.server.repository.ReservationRepository;
-import me.gimenez.server.repository.RideRepository;
+import me.gimenez.server.reservations.ReservationRepository;
 import me.gimenez.domain.dto.requests.ItineraryRequest;
-import me.gimenez.server.rest.PeerClient;
-import me.gimenez.util.ServerProperties;
+import me.gimenez.server.communication.PeerClient;
+import me.gimenez.util.PeerProperties;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -28,7 +27,7 @@ import java.util.*;
 @Service
 public class RideService {
     private final PeerClient peerclient;
-    private final ServerProperties serverProperties;
+    private final PeerProperties peerProperties;
 
     private final RideRepository rideRepository;
     private final ReservationRepository reservationRepository;
@@ -56,7 +55,7 @@ public class RideService {
             }
             Segment segment = new Segment(
                     UUID.randomUUID(),
-                    serverProperties.id(),
+                    peerProperties.selfId(),
                     s.origin(),
                     s.destination(),
                     s.price(),
@@ -139,7 +138,7 @@ public class RideService {
                     List<Segment> segments,
                     List<ItineraryResponse> itineraries
     ){
-        if (currentCity.equals(destination)) {
+        if (currentCity.equalsIgnoreCase(destination)) {
             double totalPrice = path.stream().mapToDouble(Segment::getPrice).sum();
             ItineraryResponse itineraryResponse = new ItineraryResponse(totalPrice, new ArrayList<>(path));
 
@@ -148,7 +147,7 @@ public class RideService {
         }
 
         for (Segment segment : segments) {
-            if (!segment.getOrigin().equals(currentCity)) { continue; }
+            if (!segment.getOrigin().equalsIgnoreCase(currentCity)) { continue; }
 
             if (path.contains(segment)) { continue; }
 

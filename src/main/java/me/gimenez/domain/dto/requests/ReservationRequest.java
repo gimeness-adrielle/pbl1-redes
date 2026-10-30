@@ -1,9 +1,10 @@
 package me.gimenez.domain.dto.requests;
 
+import me.gimenez.domain.models.Segment;
+
 import java.util.List;
-import java.util.UUID;
 
 public record ReservationRequest (
-        List<UUID> segmentsIds
+        List<Segment> segments
 ){
 }

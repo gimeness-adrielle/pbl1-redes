@@ -28,7 +28,7 @@ public class PassengerClient {
     }
 
     public Response reserveItinerary (List<Segment> segments){
-        ReservationRequest request = new ReservationRequest(segments.stream().map(Segment::getId).toList());
+        ReservationRequest request = new ReservationRequest(segments);
 
         return client.sendRequest("RESERVE_ITINERARY", request);
     }

@@ -10,8 +10,8 @@ import me.gimenez.server.exceptions.ReservationNotCreatedException;
 import me.gimenez.domain.dto.responses.ItineraryResponse;
 import me.gimenez.domain.models.Reservation;
 import me.gimenez.domain.models.User;
-import me.gimenez.server.services.ReservationService;
-import me.gimenez.server.services.RideService;
+import me.gimenez.server.reservations.ReservationService;
+import me.gimenez.server.rides.RideService;
 
 import java.util.List;
 import java.util.UUID;
@@ -66,7 +66,7 @@ public class PassengerHandler {
         ReservationRequest reservationRequest = mapper.convertValue(request.data(), ReservationRequest.class);
 
         try {
-            reservationService.reserve(reservationRequest.segmentsIds(), user);
+            reservationService.createReservation(reservationRequest.segments(), user);
         } catch (ReservationNotCreatedException e){
             clientHandler.sendResponse(Response.error(e.getMessage()));
             return;

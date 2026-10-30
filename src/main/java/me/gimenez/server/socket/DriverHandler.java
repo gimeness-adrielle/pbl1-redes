@@ -9,7 +9,7 @@ import me.gimenez.server.exceptions.NotFoundException;
 import me.gimenez.server.exceptions.PersistenceErrorException;
 import me.gimenez.domain.models.Ride;
 import me.gimenez.domain.models.User;
-import me.gimenez.server.services.RideService;
+import me.gimenez.server.rides.RideService;
 
 import java.util.List;
 import java.util.UUID;

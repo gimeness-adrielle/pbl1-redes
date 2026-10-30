@@ -3,11 +3,11 @@ services:
     build: .
     container_name: server1
     command: ["server"]
+    env_file:
+      - .env
     environment:
-      SERVER_ID: ${SERVER1_ID}
-      SERVER_IP: ${SERVER1_IP}
+      SERVER_ID: server-1
       SOCKET_PORT: ${SERVER1_SOCKET_PORT}
-      PEER_SERVERS: ${SERVER1_PEERS}
     ports:
       - "${SERVER1_SOCKET_PORT}:${SERVER1_SOCKET_PORT}"
       - "${SERVER1_REST_PORT}:8080"
@@ -18,11 +18,11 @@ services:
     build: .
     container_name: server2
     command: ["server"]
+    env_file:
+      - .env
     environment:
-      SERVER_ID: ${SERVER2_ID}
-      SERVER_IP: ${SERVER2_IP}
+      SERVER_ID: server-2
       SOCKET_PORT: ${SERVER2_SOCKET_PORT}
-      PEER_SERVERS: ${SERVER2_PEERS}
     ports:
       - "${SERVER2_SOCKET_PORT}:${SERVER2_SOCKET_PORT}"
       - "${SERVER2_REST_PORT}:8080"
@@ -33,11 +33,11 @@ services:
     build: .
     container_name: server3
     command: ["server"]
+    env_file:
+      - .env
     environment:
-      SERVER_ID: ${SERVER3_ID}
-      SERVER_IP: ${SERVER3_IP}
+      SERVER_ID: server-3
       SOCKET_PORT: ${SERVER3_SOCKET_PORT}
-      PEER_SERVERS: ${SERVER3_PEERS}
     ports:
       - "${SERVER3_SOCKET_PORT}:${SERVER3_SOCKET_PORT}"
       - "${SERVER3_REST_PORT}:8080"

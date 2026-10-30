@@ -1,0 +1,16 @@
+[ {
+  "id" : "10000000-0000-0000-0000-000000000000",
+  "driverId" : "4f785bab-b622-443a-871c-686a78bc97aa",
+  "seats" : 3,
+  "departureAt" : [ 2029, 11, 3, 7, 30 ],
+  "segments" : [ {
+    "id" : "00000000-0000-0000-0000-000000000001",
+    "serverId" : "server-1",
+    "origin" : "Salvador",
+    "destination" : "Feira De Santana",
+    "price" : 60.0,
+    "availableSeats" : 2,
+    "departureAt" : [ 2029, 11, 3, 7, 30 ],
+    "arrivalAt" : [ 2029, 11, 3, 8, 30 ]
+  } ]
+} ]

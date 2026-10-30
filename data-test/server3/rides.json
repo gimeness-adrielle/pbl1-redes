@@ -1,0 +1,31 @@
+[ {
+  "id" : "40000000-0000-0000-0000-000000000000",
+  "driverId" : "f971c392-cc4f-479d-9a52-488b28ffe0d0",
+  "seats" : 3,
+  "departureAt" : [ 2029, 11, 3, 15, 30 ],
+  "segments" : [ {
+    "id" : "00000000-0000-0000-0000-000000000004",
+    "serverId" : "server-3",
+    "origin" : "Vitoria Da Conquista",
+    "destination" : "Montes Claros",
+    "price" : 100.0,
+    "availableSeats" : 2,
+    "departureAt" : [ 2029, 11, 3, 15, 30 ],
+    "arrivalAt" : [ 2029, 11, 3, 20, 30 ]
+  } ]
+}, {
+  "id" : "50000000-0000-0000-0000-000000000000",
+  "driverId" : "05c53fa9-3282-4828-86b3-67e692393e68",
+  "seats" : 3,
+  "departureAt" : [ 2029, 11, 3, 9, 30 ],
+  "segments" : [ {
+    "id" : "00000000-0000-0000-0000-000000000005",
+    "serverId" : "server-3",
+    "origin" : "Feira De Santana",
+    "destination" : "Salvador",
+    "price" : 80.0,
+    "availableSeats" : 3,
+    "departureAt" : [ 2029, 11, 3, 9, 30 ],
+    "arrivalAt" : [ 2029, 11, 3, 14, 30 ]
+  } ]
+} ]

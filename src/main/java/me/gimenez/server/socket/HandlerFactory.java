@@ -2,9 +2,9 @@ package me.gimenez.server.socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import me.gimenez.server.services.AuthService;
-import me.gimenez.server.services.ReservationService;
-import me.gimenez.server.services.RideService;
+import me.gimenez.server.auth.AuthService;
+import me.gimenez.server.reservations.ReservationService;
+import me.gimenez.server.rides.RideService;
 import org.springframework.stereotype.Component;
 
 import java.net.Socket;

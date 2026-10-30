@@ -1,16 +1,16 @@
-package me.gimenez.server.repository;
+package me.gimenez.server.rides;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.annotation.PostConstruct;
 import me.gimenez.domain.models.Ride;
 import me.gimenez.domain.models.Segment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,20 +19,28 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RideRepository {
 
     private final ObjectMapper mapper;
-    private final Path path = Paths.get("data", "rides.json");
+
+    @Value("${app.storage.path}")
+    private String storagePath;
+    private Path path;
+
     private final Map<UUID, Ride> rides = new ConcurrentHashMap<>();
     private final Map<UUID, Segment> segments = new ConcurrentHashMap<>();
 
     public RideRepository(ObjectMapper mapper) {
         this.mapper = mapper;
-        mapper.registerModule(new JavaTimeModule());
+    }
+
+    @PostConstruct
+    public void init(){
+        this.path = Path.of(storagePath, "rides.json");
         loadData();
     }
 
     /** Loads the ride's data JSON into a {@link ConcurrentHashMap}, where the key is the object's
      * unique identifier and the value is the object itself. This is necessary to speed up queries.
      */
-    public void loadData(){
+    private void loadData(){
         try {
             if (Files.exists(path)) {
                 List<Ride> rides = mapper.readValue(path.toFile(), new TypeReference<List<Ride>>() {});
@@ -132,13 +140,5 @@ public class RideRepository {
         }
         return ride;
     }
-
-    /** Checks if there are persisted segments with the origin specified in the parameter.
-     * @param origin the desired origin to check.
-     * @return True if there is a match between the segment's origin and the desired origin.
-     * Otherwise, returns False.
-     */
-    public boolean hasSegmentsWithThatOrigin(String origin){
-        return segments.values().stream().anyMatch(segment -> segment.getOrigin().equals(origin));
-    }
+    
 }

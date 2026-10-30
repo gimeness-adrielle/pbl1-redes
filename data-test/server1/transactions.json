@@ -1,0 +1,49 @@
+[ {
+  "txId" : "187443a2-1bf3-459f-8ae1-1cd63706e8ef",
+  "coordinatorId" : "server-1",
+  "segmentIds" : [ "00000000-0000-0000-0000-000000000001" ],
+  "type" : "CREATE_RESERVATION",
+  "decision" : "COMMIT",
+  "currentStatus" : "COMMITTED",
+  "participants" : {
+    "server-1" : "COMMITTED",
+    "server-3" : "COMMITTED",
+    "server-2" : "COMMITTED"
+  }
+}, {
+  "txId" : "9255b6ce-b406-4652-b016-a8031e22c262",
+  "coordinatorId" : "server-1",
+  "segmentIds" : [ "00000000-0000-0000-0000-000000000001" ],
+  "type" : "CREATE_RESERVATION",
+  "decision" : "COMMIT",
+  "currentStatus" : "COMMITTED",
+  "participants" : {
+    "server-1" : "COMMITTED",
+    "server-3" : "COMMITTED",
+    "server-2" : "COMMITTED"
+  }
+}, {
+  "txId" : "7773f3e8-4782-46b2-897c-67485469e52b",
+  "coordinatorId" : "server-1",
+  "segmentIds" : [ "00000000-0000-0000-0000-000000000001" ],
+  "type" : "CREATE_RESERVATION",
+  "decision" : "ABORT",
+  "currentStatus" : "ABORTED",
+  "participants" : {
+    "server-1" : "ABORTED",
+    "server-3" : "ABORTED",
+    "server-2" : "PREPARING"
+  }
+}, {
+  "txId" : "8a81cf6d-bada-45a4-be32-1497c5b6b11f",
+  "coordinatorId" : "server-1",
+  "segmentIds" : [ "00000000-0000-0000-0000-000000000001" ],
+  "type" : "CREATE_RESERVATION",
+  "decision" : "ABORT",
+  "currentStatus" : "ABORTED",
+  "participants" : {
+    "server-1" : "ABORTED",
+    "server-3" : "ABORTED",
+    "server-2" : "PREPARING"
+  }
+} ]

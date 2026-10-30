@@ -11,9 +11,9 @@ import me.gimenez.domain.models.User;
 import me.gimenez.domain.dto.requests.LoginRequest;
 import me.gimenez.domain.dto.requests.RegisterRequest;
 import me.gimenez.domain.models.UserType;
-import me.gimenez.server.services.ReservationService;
-import me.gimenez.server.services.RideService;
-import me.gimenez.server.services.AuthService;
+import me.gimenez.server.reservations.ReservationService;
+import me.gimenez.server.rides.RideService;
+import me.gimenez.server.auth.AuthService;
 
 import java.io.*;
 import java.net.Socket;

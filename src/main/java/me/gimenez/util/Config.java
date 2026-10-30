@@ -12,7 +12,7 @@ import java.net.http.HttpClient;
 import java.time.Duration;
 
 @Configuration
-@EnableConfigurationProperties({PeerProperties.class, ServerProperties.class})
+@EnableConfigurationProperties({PeerProperties.class})
 public class Config {
     @Bean
     public ObjectMapper mapper() {

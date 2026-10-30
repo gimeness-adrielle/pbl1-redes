@@ -1,14 +1,15 @@
-package me.gimenez.server.repository;
+package me.gimenez.server.reservations;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import me.gimenez.domain.models.Reservation;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,15 +18,24 @@ import java.util.UUID;
 @Repository
 public class ReservationRepository {
     private final ObjectMapper mapper;
-    private final Path path = Paths.get("data", "reservations.json");
+
+    @Value("${app.storage.path}")
+    private String storagePath;
+    private Path path;
+
     private final Map<UUID, Reservation> reservations = new HashMap<>();
 
     public ReservationRepository(ObjectMapper mapper) {
         this.mapper = mapper;
+    }
+
+    @PostConstruct
+    public void init() {
+        this.path = Path.of(storagePath, "reservations.json");
         loadData();
     }
 
-    public void loadData(){
+    private void loadData(){
         try {
             if (Files.exists(path)) {
                 List<Reservation> reservations = mapper.readValue(path.toFile(), new TypeReference<>() {});

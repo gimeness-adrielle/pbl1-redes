@@ -1,16 +1,16 @@
 [ {
-  "id" : "38592d2d-57dc-490a-ab8f-c2ef933d7396",
+  "id" : "e9dac181-2947-495e-8d6c-0c5d81e10472",
   "driverId" : "dbb80c43-809f-471a-a0e7-cf12aa446db1",
-  "seats" : 1,
-  "departureAt" : [ 2026, 10, 25, 10, 30 ],
+  "seats" : 3,
+  "departureAt" : [ 2026, 11, 3, 9, 30 ],
   "segments" : [ {
-    "id" : "adabbab3-bdb2-4897-9caf-c3e76983e2c8",
-    "serverId" : null,
-    "origin" : "Feira De Santana",
+    "id" : "104f77ed-874c-439b-80cd-c5e2097cd733",
+    "serverId" : "server-2",
+    "origin" : "Salvador",
     "destination" : "Vitoria Da Conquista",
-    "price" : 80.0,
+    "price" : 100.0,
     "availableSeats" : 1,
-    "departureAt" : [ 2026, 10, 25, 10, 30 ],
-    "arrivalAt" : [ 2026, 10, 25, 13, 30 ]
+    "departureAt" : [ 2026, 11, 3, 9, 30 ],
+    "arrivalAt" : [ 2026, 11, 3, 10, 30 ]
   } ]
 } ]

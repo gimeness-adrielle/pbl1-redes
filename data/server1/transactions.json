@@ -1,0 +1,10 @@
+[ {
+  "txId" : "9af4df22-9cc9-4206-8d66-3f221ee8d899",
+  "coordinatorId" : "server-1",
+  "peers" : {
+    "server-3" : "COMMITTED",
+    "server-2" : "COMMITTED"
+  },
+  "segmentIds" : [ "225d2faa-d9d1-4dd5-b816-568a220b56fd" ],
+  "status" : "COMMITTED"
+} ]
