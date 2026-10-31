@@ -1,10 +1,10 @@
 package me.gimenez.client.view;
 
 import me.gimenez.client.PassengerClient;
-import me.gimenez.domain.dto.responses.ItineraryResponse;
+import me.gimenez.domain.dto.ItineraryDTO;
 import me.gimenez.domain.models.Reservation;
 import me.gimenez.domain.models.Segment;
-import me.gimenez.domain.dto.responses.Response;
+import me.gimenez.domain.dto.Response;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -59,7 +59,7 @@ public class PassengerApp {
 
         LocalDate date = readLocalDate("Digite a data que deseja viajar (dd/MM/yyyy): ");
 
-        List<ItineraryResponse> itineraries = passengerClient.searchItinerary(normalize(origin), normalize(destination), date);
+        List<ItineraryDTO.Response> itineraries = passengerClient.searchItinerary(normalize(origin), normalize(destination), date);
 
         if (itineraries.isEmpty()){
             System.out.println("Não foram encontrados itinerários.");
@@ -67,14 +67,14 @@ public class PassengerApp {
         }
 
         for (int i=0; i<itineraries.size(); i++) {
-            ItineraryResponse itineraryResponse = itineraries.get(i);
+            ItineraryDTO.Response itineraryResponse = itineraries.get(i);
             printItinerary(itineraryResponse.segments(), itineraryResponse.totalPrice(), i);
         }
 
         Integer idx = readInteger("Para reservar, digite o número do itinerário desejado, ou digite 'q' para cancelar.\n");
         if (idx == null){ return; }
 
-        ItineraryResponse itineraryResponse = itineraries.get(idx-1);
+        ItineraryDTO.Response itineraryResponse = itineraries.get(idx-1);
         if (itineraryResponse == null){
             System.out.println("Número do itinerário não encontrado.");
             return;

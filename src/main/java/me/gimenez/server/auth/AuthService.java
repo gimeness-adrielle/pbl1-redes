@@ -5,8 +5,8 @@ import me.gimenez.server.exceptions.EmailAlreadyExistsException;
 import me.gimenez.server.exceptions.InvalidUserException;
 import me.gimenez.server.exceptions.UserNotCreatedException;
 import me.gimenez.domain.models.User;
-import me.gimenez.domain.dto.requests.LoginRequest;
-import me.gimenez.domain.dto.requests.RegisterRequest;
+import me.gimenez.domain.dto.LoginRequest;
+import me.gimenez.domain.dto.RegisterRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

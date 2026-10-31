@@ -2,7 +2,7 @@
 import me.gimenez.domain.models.Segment;
 import me.gimenez.domain.models.User;
 import me.gimenez.domain.models.UserType;
-import me.gimenez.server.communication.TestController;
+import me.gimenez.server.rest.TestController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;

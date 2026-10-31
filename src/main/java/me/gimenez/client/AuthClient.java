@@ -2,9 +2,9 @@ package me.gimenez.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import me.gimenez.domain.dto.responses.Response;
-import me.gimenez.domain.dto.requests.LoginRequest;
-import me.gimenez.domain.dto.requests.RegisterRequest;
+import me.gimenez.domain.dto.Response;
+import me.gimenez.domain.dto.LoginRequest;
+import me.gimenez.domain.dto.RegisterRequest;
 import me.gimenez.domain.models.UserType;
 
 @RequiredArgsConstructor

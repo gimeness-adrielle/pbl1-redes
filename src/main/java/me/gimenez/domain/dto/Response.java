@@ -1,4 +1,4 @@
-package me.gimenez.domain.dto.responses;
+package me.gimenez.domain.dto;
 
 public record Response(
         String status,

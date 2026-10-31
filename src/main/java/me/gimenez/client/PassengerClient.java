@@ -3,10 +3,9 @@ package me.gimenez.client;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import me.gimenez.domain.dto.requests.ReservationRequest;
-import me.gimenez.domain.dto.responses.Response;
-import me.gimenez.domain.dto.requests.ItineraryRequest;
-import me.gimenez.domain.dto.responses.ItineraryResponse;
+import me.gimenez.domain.dto.ItineraryDTO;
+import me.gimenez.domain.dto.ReservationDTO;
+import me.gimenez.domain.dto.Response;
 import me.gimenez.domain.models.Reservation;
 import me.gimenez.domain.models.Segment;
 
@@ -19,8 +18,8 @@ public class PassengerClient {
     private final Client client;
     private final ObjectMapper mapper;
 
-    public List<ItineraryResponse> searchItinerary(String origin, String destination, LocalDate date) {
-        ItineraryRequest request = new ItineraryRequest(origin, destination, date);
+    public List<ItineraryDTO.Response> searchItinerary(String origin, String destination, LocalDate date) {
+        ItineraryDTO.Request request = new ItineraryDTO.Request(origin, destination, date);
 
         Response response = client.sendRequest("SEARCH_ITINERARY", request);
 
@@ -28,7 +27,7 @@ public class PassengerClient {
     }
 
     public Response reserveItinerary (List<Segment> segments){
-        ReservationRequest request = new ReservationRequest(segments);
+        ReservationDTO.Request request = new ReservationDTO.Request(segments);
 
         return client.sendRequest("RESERVE_ITINERARY", request);
     }

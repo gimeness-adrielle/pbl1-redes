@@ -3,7 +3,7 @@ package me.gimenez.server.transactions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.gimenez.domain.models.Transaction;
-import me.gimenez.server.communication.PeerClient;
+import me.gimenez.server.rest.PeerClient;
 import me.gimenez.util.HoldManager;
 import me.gimenez.util.PeerProperties;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -54,16 +54,19 @@ public class TransactionRecoveryService {
                 switch (transaction.getDecision()) {
                     case PREPARE:{
                         transactionService.abort(transaction.getTxId());
-                        peerClient.sendDecision(transaction.getTxId(), "abort", transaction.getParticipants().keySet().stream().toList());
+                        peerClient.sendAbort(transaction.getTxId(), transaction.getParticipants().keySet().stream().toList());
                         break;
                     }
                     case COMMIT:
-                        coordinatorService.retryCommit(transaction.getTxId(), transaction.getParticipants().keySet().stream().toList());
+                        coordinatorService.retryCommit(
+                                transaction.getTxId(),
+                                transaction.getParticipants().keySet().stream().toList(),
+                                transaction.getType()
+                        );
                 }
-
             } else{
                 log.info("Asking status to coordinator...");
-                transactionService.resolveExpired(transaction.getTxId());
+                transactionService.resolveExpired(transaction.getTxId(), transaction.getType());
             }
         }
     }

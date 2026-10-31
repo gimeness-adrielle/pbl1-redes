@@ -10,10 +10,8 @@ import org.springframework.stereotype.Repository;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class ReservationRepository {
@@ -82,6 +80,15 @@ public class ReservationRepository {
                         .anyMatch(segment -> segmentsToDelete.contains(segment.getId())));
 
         mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), reservations.values());
+    }
+
+    public List<Reservation> findReservationBySegments(List<UUID> segmentsIds){
+        Set<UUID> idsSet = Set.copyOf(segmentsIds);
+
+        return reservations.values().stream()
+                .filter(reservation -> reservation.segments().stream()
+                        .anyMatch(segment -> idsSet.contains(segment.getId())))
+                .toList();
     }
 
 }

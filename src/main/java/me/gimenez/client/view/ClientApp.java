@@ -7,7 +7,7 @@ import me.gimenez.client.Client;
 import me.gimenez.client.DriverClient;
 import me.gimenez.client.PassengerClient;
 import me.gimenez.domain.models.UserType;
-import me.gimenez.domain.dto.responses.Response;
+import me.gimenez.domain.dto.Response;
 
 import java.util.Scanner;
 import java.util.function.Predicate;

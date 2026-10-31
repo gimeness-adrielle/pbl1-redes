@@ -1,4 +1,4 @@
-package me.gimenez.domain.dto.requests;
+package me.gimenez.domain.dto;
 
 public record LoginRequest(
         String email,

@@ -2,9 +2,8 @@ package me.gimenez.client.view;
 
 import lombok.RequiredArgsConstructor;
 import me.gimenez.client.DriverClient;
-import me.gimenez.domain.dto.responses.RideResponse;
-import me.gimenez.domain.dto.requests.SegmentRequest;
-import me.gimenez.domain.dto.responses.SegmentResponse;
+import me.gimenez.domain.dto.RideDTO;
+import me.gimenez.domain.dto.SegmentDTO;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -48,7 +47,7 @@ public class DriverApp {
         System.out.println("Digite 'q' para sair a qualquer momento.\n");
 
         List<String> routes = new ArrayList<>();
-        List<SegmentRequest> segments = new ArrayList<>();
+        List<SegmentDTO.Request> segments = new ArrayList<>();
 
         Integer numOfCities = readInteger("Número de cidades em que você irá passar: ");
         if (numOfCities == null) { return; }
@@ -96,8 +95,8 @@ public class DriverApp {
         System.out.println(response);
     }
 
-    public List<RideResponse> showDriverRides (){
-        List<RideResponse> rides = driverClient.getRidesByDriver();
+    public List<RideDTO.Response> showDriverRides (){
+        List<RideDTO.Response> rides = driverClient.getRidesByDriver();
 
         if (rides.isEmpty()){
             System.out.println("Você não possui caronas cadastradas.");
@@ -106,16 +105,16 @@ public class DriverApp {
 
         System.out.println("Veja abaixo todas as suas caronas cadastradas.");
         for (int i = 0; i<rides.size(); i++) {
-            RideResponse ride = rides.get(i);
+            RideDTO.Response ride = rides.get(i);
 
             System.out.print("\nViagem " + (i+1) + " | ");
             System.out.println(ride.departureAt().toLocalDate() + " saída às " + ride.departureAt().toLocalTime());
 
-            List<SegmentResponse> segments =  ride.segments();
+            List<SegmentDTO.Response> segments =  ride.segments();
 
             System.out.println("Trechos da viagem:");
 
-            for (SegmentResponse segment : segments) {
+            for (SegmentDTO.Response segment : segments) {
                 System.out.println("    " + segment.origin() + " → " + segment.destination());
                 System.out.println("    Preço: R$" + segment.price());
 
@@ -131,7 +130,7 @@ public class DriverApp {
     }
 
     public void showDeleteRide(){
-        List<RideResponse> rides = showDriverRides();
+        List<RideDTO.Response> rides = showDriverRides();
         if (rides == null){ return; }
 
         Integer idx = readInteger("Escolha o número da viagem para deletar ou digite 'q para cancelar a operação.\n");
@@ -141,7 +140,7 @@ public class DriverApp {
             System.out.println("ERRO: Escolha o número válido de uma viagem.");
             return;
         }
-        RideResponse ride = rides.get(idx-1);
+        RideDTO.Response ride = rides.get(idx-1);
         String response = driverClient.deleteRide(ride.id());
 
         System.out.println(response);

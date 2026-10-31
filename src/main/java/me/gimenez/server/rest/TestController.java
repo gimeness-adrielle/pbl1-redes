@@ -1,4 +1,4 @@
-package me.gimenez.server.communication;
+package me.gimenez.server.rest;
 
 import lombok.RequiredArgsConstructor;
 import me.gimenez.domain.models.Reservation;

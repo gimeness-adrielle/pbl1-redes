@@ -2,15 +2,15 @@ package me.gimenez.server.transactions;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.gimenez.domain.dto.responses.TransactionResponse;
+import me.gimenez.domain.dto.TransactionDTO;
 import me.gimenez.domain.models.Transaction;
 import me.gimenez.domain.models.TransactionDecision;
 import me.gimenez.domain.models.TransactionStatus;
 import me.gimenez.domain.models.TransactionType;
-import me.gimenez.server.communication.PeerClient;
+import me.gimenez.server.rest.PeerClient;
 import me.gimenez.server.exceptions.PersistenceErrorException;
 import me.gimenez.server.exceptions.ReservationNotCreatedException;
-import me.gimenez.util.HoldManager;
+import me.gimenez.util.LamportClock;
 import me.gimenez.util.PeerProperties;
 import org.springframework.stereotype.Service;
 
@@ -24,35 +24,40 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RequiredArgsConstructor
 public class TransactionCoordinatorService {
+    private final LamportClock lamportClock;
     private final PeerClient peerClient;
     private final PeerProperties peerProperties;
     private final TransactionRepository transactionRepository;
     private final TransactionService transactionService;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    public void remoteReservation(Map<String, List<UUID>> segmentsByServer, boolean hasLocalSegments) {
+    public boolean remoteCreateReservation(Map<String, List<UUID>> segmentsByServer,
+                                        boolean hasLocalSegments, TransactionType transactionType
+    ) {
         log.info("Remote reservation applied.");
+        long timestamp = lamportClock.tick();
         UUID txId = UUID.randomUUID();
 
         // Transaction participants
         List<String> participants = segmentsByServer.keySet().stream().toList();
 
         // PHASE 1: PREPARE
-        boolean allPrepared = prepareDecision(txId, segmentsByServer, hasLocalSegments, participants);
+        boolean allPrepared = prepareDecision(txId, segmentsByServer, hasLocalSegments, participants, transactionType, timestamp);
 
         // ABORT: if not everyone responded with "PREPARED"
         if (!allPrepared) {
             abortDecision(txId, participants, hasLocalSegments);
-            return;
+            return false;
         }
 
         // PHASE 2: COMMIT
-        commitDecision(txId, segmentsByServer, hasLocalSegments);
+        commitDecision(txId, segmentsByServer, hasLocalSegments, transactionType);
+        return true;
     }
 
-
     private boolean prepareDecision(UUID txId, Map<String, List<UUID>> segmentsByServer,
-                                    boolean hasLocalSegments, List<String> participants
+                                    boolean hasLocalSegments, List<String> participants,
+                                    TransactionType transactionType, long timestamp
     ){
         // If there are local operations, it executes the local prepare step.
         if (hasLocalSegments){
@@ -62,16 +67,17 @@ public class TransactionCoordinatorService {
                     txId,
                     localSegmentIds,
                     peerProperties.selfId(),
-                    participants
+                    participants,
+                    transactionType
             );
 
             boolean preparedLocal = status == TransactionStatus.PREPARED;
             if(!preparedLocal){ return false; }
         } else {
-            transactionService.createTransaction(txId, List.of(), peerProperties.selfId(), participants);
+            transactionService.createTransaction(txId, List.of(), peerProperties.selfId(), participants, transactionType);
         }
 
-        List<TransactionResponse> remotePrepares = peerClient.sendPrepare(txId, segmentsByServer);
+        List<TransactionDTO.Response> remotePrepares = peerClient.sendPrepare(txId, segmentsByServer, transactionType, timestamp);
 
         Transaction transaction = transactionRepository.findById(txId);
 
@@ -91,13 +97,17 @@ public class TransactionCoordinatorService {
                 .allMatch(status -> status.equals(TransactionStatus.PREPARED));
     }
 
-    private void commitDecision(UUID txId, Map<String, List<UUID>> segmentsByServer, boolean hasLocalSegments){
+    private void commitDecision(UUID txId, Map<String, List<UUID>> segmentsByServer,
+                                boolean hasLocalSegments, TransactionType transactionType
+    ){
+        long timestamp = lamportClock.tick();
+
         try {
             log.info("Transaction {} has been prepared, committing now...", txId);
             Transaction transaction = transactionRepository.findById(txId);
 
             if (hasLocalSegments){
-                transactionService.commit(txId);
+                transactionService.commit(txId, transactionType);
                 transaction.updateParticipantStatus(peerProperties.selfId(), TransactionStatus.COMMITTED);
             }else {
                 transaction.setDecision(TransactionDecision.COMMIT);
@@ -105,13 +115,15 @@ public class TransactionCoordinatorService {
             }
             transactionRepository.save(transaction);
 
-            retryCommit(txId, new ArrayList<>(segmentsByServer.keySet()));
+            retryCommit(txId, new ArrayList<>(segmentsByServer.keySet()), transactionType);
         } catch (IOException e) {
             throw new PersistenceErrorException("[ERROR] Falha ao persistir o commit da transação.", e);
         }
     }
 
     private void abortDecision(UUID txId, List<String> participants, boolean hasLocalSegments){
+        long timestamp = lamportClock.tick();
+
         log.info("Not everyone has confirmed they are prepared; aborting operation...");
         Transaction transaction = transactionRepository.findById(txId);
         transaction.setDecision(TransactionDecision.ABORT);
@@ -128,7 +140,7 @@ public class TransactionCoordinatorService {
             throw new PersistenceErrorException("[ERROR] Falha ao persistir o commit da transação.", e);
         }
 
-        List<TransactionResponse> responses = peerClient.sendDecision(txId, "abort", participants);
+        List<TransactionDTO.Response> responses = peerClient.sendAbort(txId, participants, timestamp);
         responses.forEach(response -> {
             if (response != null){
                 transaction.updateParticipantStatus(response.serverId(), response.status());
@@ -145,18 +157,18 @@ public class TransactionCoordinatorService {
         throw new ReservationNotCreatedException("Não foi possível reservar o itinerário. Tente novamente mais tarde.");
     }
 
-    public void retryCommit(UUID txId, List<String> serversToSend) {
+    public void retryCommit(UUID txId, List<String> serversToSend, TransactionType transactionType) {
         Transaction t = transactionRepository.findById(txId);
         if (t == null || t.getCurrentStatus() == TransactionStatus.ABORTED) return;
 
         log.info("{}: Trying to commit transaction: {}", peerProperties.selfId(), txId);
 
-        List<TransactionResponse> responses = peerClient.sendDecision(txId, "commit", serversToSend);
+        List<TransactionDTO.Response> responses = peerClient.sendCommit(txId, serversToSend, transactionType);
 
         List<String> confirmedServers = responses.stream()
                 .filter(response -> response != null &&
                         response.status() == TransactionStatus.COMMITTED)
-                .map(TransactionResponse::serverId)
+                .map(TransactionDTO.Response::serverId)
                 .toList();
         log.info("Confirmed servers: {}", confirmedServers);
 
@@ -179,7 +191,7 @@ public class TransactionCoordinatorService {
                 return;
             }
             log.info("Still have pending commits from transaction {}. Retrying commit in seconds...", txId);
-            scheduler.schedule(() -> retryCommit(txId, pendingServers), 10, TimeUnit.SECONDS);
+            scheduler.schedule(() -> retryCommit(txId, pendingServers, transactionType), 10, TimeUnit.SECONDS);
 
         } catch (IOException e) {
             throw new PersistenceErrorException("Falha ao salvar a transação.", e);

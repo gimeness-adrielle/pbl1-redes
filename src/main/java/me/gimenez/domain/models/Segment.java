@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
+import me.gimenez.domain.dto.SegmentDTO;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -55,6 +56,19 @@ public class Segment {
                 this.availableSeats = availableSeats;
                 this.departureAt = departureAt;
                 this.arrivalAt = arrivalAt;
+        }
+
+        public static Segment from(SegmentDTO.Response response){
+                return new Segment(
+                        response.id(),
+                        response.serverId(),
+                        response.origin(),
+                        response.destination(),
+                        response.price(),
+                        response.availableSeats(),
+                        response.departureAt(),
+                        response.arrivalAt()
+                );
         }
 }
 

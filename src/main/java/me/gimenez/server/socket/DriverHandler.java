@@ -1,10 +1,9 @@
 package me.gimenez.server.socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import me.gimenez.domain.dto.requests.Request;
-import me.gimenez.domain.dto.requests.RideRequest;
-import me.gimenez.domain.dto.responses.Response;
-import me.gimenez.domain.dto.responses.RideResponse;
+import me.gimenez.domain.dto.RideDTO;
+import me.gimenez.domain.dto.Request;
+import me.gimenez.domain.dto.Response;
 import me.gimenez.server.exceptions.NotFoundException;
 import me.gimenez.server.exceptions.PersistenceErrorException;
 import me.gimenez.domain.models.Ride;
@@ -49,7 +48,7 @@ public class DriverHandler {
 
     void handlePublishRide(Request request) {
         try {
-            RideRequest rideRequest = mapper.convertValue(request.data(), RideRequest.class);
+            RideDTO.Request rideRequest = mapper.convertValue(request.data(), RideDTO.Request.class);
             rideService.create(rideRequest, user);
 
             clientHandler.sendResponse(Response.ok("Viagem publicada com sucesso!", null));
@@ -60,7 +59,7 @@ public class DriverHandler {
 
     void handleListRides() {
         List<Ride> rides = rideService.getRidesByDriver(user.id());
-        List<RideResponse> responses = rides.stream().map(RideResponse::from).toList();
+        List<RideDTO.Response> responses = rides.stream().map(RideDTO.Response::from).toList();
 
         clientHandler.sendResponse(Response.ok("Viagens buscadas com sucesso!", responses));
     }
@@ -68,7 +67,7 @@ public class DriverHandler {
     void handleDeleteRide(Request request) {
         try {
             UUID rideId = mapper.convertValue(request.data(), UUID.class);
-            rideService.deleteRide(rideId);
+            rideService.delete(rideId);
 
             clientHandler.sendResponse(Response.ok("Viagem deletada com sucesso!", null));
         } catch (NotFoundException e){

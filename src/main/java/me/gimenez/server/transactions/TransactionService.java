@@ -2,24 +2,19 @@ package me.gimenez.server.transactions;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.gimenez.domain.dto.responses.TransactionResponse;
 import me.gimenez.domain.models.*;
 import me.gimenez.server.exceptions.PersistenceErrorException;
-import me.gimenez.server.exceptions.ReservationNotCreatedException;
 import me.gimenez.server.exceptions.TransactionNotFoundException;
 import me.gimenez.server.exceptions.TransactionRejectedException;
 import me.gimenez.server.rides.RideRepository;
-import me.gimenez.server.communication.PeerClient;
+import me.gimenez.server.rest.PeerClient;
 import me.gimenez.util.HoldManager;
 import me.gimenez.util.LockService;
 import me.gimenez.util.PeerProperties;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -50,7 +45,8 @@ public class TransactionService {
                 });
     }
 
-    public TransactionStatus prepare(UUID txId, List<UUID> segmentIds, String coordinatorId, List<String> participants){
+    public TransactionStatus prepare(UUID txId, List<UUID> segmentIds, String coordinatorId,
+                                     List<String> participants, TransactionType transactionType){
         log.info("{} PREPARING: preparing transaction {}", peerProperties.selfId().toUpperCase(), txId);
         List<ReentrantLock> locks = lockService.lock(segmentIds);
 
@@ -68,15 +64,15 @@ public class TransactionService {
                 throw new TransactionRejectedException("Um ou mais segmentos não foram encontrados.");
             }
 
-            if (!checkAvailability(currentSegments)){
+            if (transactionType == TransactionType.CREATE_RESERVATION && !checkAvailability(currentSegments)){
                 throw new TransactionRejectedException("Não há assentos disponíveis para todos os segmentos.");
             }
 
-            Transaction transaction = createTransaction(txId, segmentIds, coordinatorId, participants);
+            Transaction transaction = createTransaction(txId, segmentIds, coordinatorId, participants, transactionType);
             log.info("Status: {}", transaction.getCurrentStatus());
 
             if (!coordinatorId.equals(peerProperties.selfId())) {
-                scheduler.schedule(() -> resolveExpired(txId), 15, TimeUnit.SECONDS);
+                scheduler.schedule(() -> resolveExpired(txId, transactionType), 15, TimeUnit.SECONDS);
             }
 
             log.info("{} PREPARE: transaction {} has been prepared.\nStatus: {}", peerProperties.selfId().toUpperCase(), txId, transaction.getCurrentStatus());
@@ -86,7 +82,7 @@ public class TransactionService {
         }
     }
 
-    public Transaction commit (UUID txId){
+    public Transaction commit (UUID txId, TransactionType transactionType){
         Transaction transaction = transactionRepository.findById(txId);
         if (transaction == null){
             throw new TransactionNotFoundException("Não foi encontrada uma transação com este id.");
@@ -117,8 +113,14 @@ public class TransactionService {
                 throw new TransactionRejectedException("Um ou mais segmentos não foram encontrados.");
             }
 
-            for (Segment segment : currentSegments) {
-                segment.setAvailableSeats(segment.getAvailableSeats() - 1);
+            if (transactionType == TransactionType.CREATE_RESERVATION){
+                for (Segment segment : currentSegments) {
+                    segment.setAvailableSeats(segment.getAvailableSeats() - 1);
+                }
+            } else {
+                for (Segment segment : currentSegments) {
+                    segment.setAvailableSeats(segment.getAvailableSeats() + 1);
+                }
             }
             rideRepository.saveAll();
 
@@ -170,7 +172,8 @@ public class TransactionService {
         }
     }
 
-    public Transaction createTransaction (UUID txId, List<UUID> segmentIds, String coordinatorId, List<String> participants){
+    public Transaction createTransaction (UUID txId, List<UUID> segmentIds, String coordinatorId,
+                                          List<String> participants, TransactionType transactionType){
         log.info("Creating new transaction: {}", txId);
         Map<String, TransactionStatus> participantsStatus = new HashMap<>();
 
@@ -180,10 +183,10 @@ public class TransactionService {
             for (String serverId: participants){
                 participantsStatus.put(serverId, TransactionStatus.PREPARING);
             }
-            transaction = new Transaction(txId, coordinatorId, segmentIds, TransactionType.CREATE_RESERVATION);
+            transaction = new Transaction(txId, coordinatorId, segmentIds, transactionType);
             transaction.setParticipants(participantsStatus);
         } else {
-            transaction = new Transaction(txId, coordinatorId, segmentIds, TransactionType.CREATE_RESERVATION);
+            transaction = new Transaction(txId, coordinatorId, segmentIds, transactionType);
         }
 
         try {
@@ -200,7 +203,7 @@ public class TransactionService {
         return transaction;
     }
 
-    public void resolveExpired(UUID txId) {
+    public void resolveExpired(UUID txId, TransactionType transactionType) {
         Transaction t = transactionRepository.findById(txId);
         if (t == null || t.getCurrentStatus() != TransactionStatus.PREPARED) return;
 
@@ -209,9 +212,9 @@ public class TransactionService {
         TransactionDecision decision = peerClient.askStatus(t.getCoordinatorId(), txId);
 
         if (decision == null || decision == TransactionDecision.PREPARE) {
-            scheduler.schedule(() -> resolveExpired(txId), 10, TimeUnit.SECONDS);
+            scheduler.schedule(() -> resolveExpired(txId, transactionType), 10, TimeUnit.SECONDS);
         } else if (decision == TransactionDecision.COMMIT) {
-            commit(txId);
+            commit(txId, transactionType);
         } else {
             abort(txId);
         }

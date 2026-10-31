@@ -140,5 +140,9 @@ public class RideRepository {
         }
         return ride;
     }
+
+    public Ride findById(UUID id) {
+        return rides.get(id);
+    }
     
 }

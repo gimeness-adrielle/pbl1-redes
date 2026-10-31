@@ -1,8 +1,8 @@
 package me.gimenez.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import me.gimenez.domain.dto.requests.Request;
-import me.gimenez.domain.dto.responses.Response;
+import me.gimenez.domain.dto.Request;
+import me.gimenez.domain.dto.Response;
 import me.gimenez.server.exceptions.CommunicationErrorException;
 import me.gimenez.server.exceptions.ServerUnavailableException;
 

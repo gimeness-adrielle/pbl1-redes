@@ -1,4 +1,4 @@
-package me.gimenez.domain.dto.requests;
+package me.gimenez.domain.dto;
 
 import me.gimenez.domain.models.UserType;
 

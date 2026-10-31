@@ -1,13 +1,12 @@
 package me.gimenez.server.socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import me.gimenez.domain.dto.requests.Request;
-import me.gimenez.domain.dto.requests.ReservationRequest;
-import me.gimenez.domain.dto.responses.Response;
-import me.gimenez.domain.dto.requests.ItineraryRequest;
+import me.gimenez.domain.dto.ItineraryDTO;
+import me.gimenez.domain.dto.ReservationDTO;
+import me.gimenez.domain.dto.Request;
+import me.gimenez.domain.dto.Response;
 import me.gimenez.server.exceptions.PersistenceErrorException;
 import me.gimenez.server.exceptions.ReservationNotCreatedException;
-import me.gimenez.domain.dto.responses.ItineraryResponse;
 import me.gimenez.domain.models.Reservation;
 import me.gimenez.domain.models.User;
 import me.gimenez.server.reservations.ReservationService;
@@ -57,13 +56,13 @@ public class PassengerHandler {
     }
 
     void handleSearchItinerary(Request request) {
-        ItineraryRequest itineraryRequest = mapper.convertValue(request.data(), ItineraryRequest.class);
-        List<ItineraryResponse> itineraries = rideService.searchItinerary(itineraryRequest);
+        ItineraryDTO.Request itineraryRequest = mapper.convertValue(request.data(), ItineraryDTO.Request.class);
+        List<ItineraryDTO.Response> itineraries = rideService.searchItinerary(itineraryRequest);
         clientHandler.sendResponse(new Response("OK", "Busca realizada com sucesso.", itineraries));
     }
 
     void handleReserveItinerary(Request request){
-        ReservationRequest reservationRequest = mapper.convertValue(request.data(), ReservationRequest.class);
+        ReservationDTO.Request reservationRequest = mapper.convertValue(request.data(), ReservationDTO.Request.class);
 
         try {
             reservationService.createReservation(reservationRequest.segments(), user);
