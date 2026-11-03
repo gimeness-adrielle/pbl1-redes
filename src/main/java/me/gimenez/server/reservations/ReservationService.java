@@ -13,7 +13,6 @@ import me.gimenez.util.PeerProperties;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -66,7 +65,7 @@ public class ReservationService {
 
         try {
             List<Segment> currentSegments = rideRepository.findSegmentsById(segmentIds);
-            if (currentSegments == null || !transactionService.checkAvailability(currentSegments)) {
+            if (currentSegments == null || !transactionService.checkAtomicity(currentSegments)) {
                 throw new ReservationNotCreatedException("Não foi possível reservar o itinerário. Tente novamente mais tarde.");
             }
 
@@ -121,7 +120,6 @@ public class ReservationService {
         if (!success) { return; }
         try {
             reservationRepository.delete(reservation.id());
-            reservationRepository.save(reservation);
         } catch (IOException e) {
             throw new ReservationNotCreatedException("Os assentos foram confirmados mas houve uma falha ao persistir o registro da reserva." + e);
         }

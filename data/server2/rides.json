@@ -2,15 +2,15 @@
   "id" : "e9dac181-2947-495e-8d6c-0c5d81e10472",
   "driverId" : "dbb80c43-809f-471a-a0e7-cf12aa446db1",
   "seats" : 3,
-  "departureAt" : [ 2026, 11, 3, 9, 30 ],
+  "departureAt" : [ 2029, 11, 3, 9, 30 ],
   "segments" : [ {
     "id" : "104f77ed-874c-439b-80cd-c5e2097cd733",
     "serverId" : "server-2",
     "origin" : "Salvador",
     "destination" : "Vitoria Da Conquista",
     "price" : 100.0,
-    "availableSeats" : 1,
-    "departureAt" : [ 2026, 11, 3, 9, 30 ],
-    "arrivalAt" : [ 2026, 11, 3, 10, 30 ]
+    "availableSeats" : 4,
+    "departureAt" : [ 2029, 11, 3, 9, 30 ],
+    "arrivalAt" : [ 2029, 11, 3, 10, 30 ]
   } ]
 } ]

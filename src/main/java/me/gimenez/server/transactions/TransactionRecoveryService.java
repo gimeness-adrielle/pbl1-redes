@@ -54,19 +54,18 @@ public class TransactionRecoveryService {
                 switch (transaction.getDecision()) {
                     case PREPARE:{
                         transactionService.abort(transaction.getTxId());
-                        peerClient.sendAbort(transaction.getTxId(), transaction.getParticipants().keySet().stream().toList());
+                        peerClient.sendDecision(transaction.getTxId(), transaction.getParticipants().keySet().stream().toList(), "abort");
                         break;
                     }
                     case COMMIT:
                         coordinatorService.retryCommit(
                                 transaction.getTxId(),
-                                transaction.getParticipants().keySet().stream().toList(),
-                                transaction.getType()
+                                transaction.getParticipants().keySet().stream().toList()
                         );
                 }
             } else{
                 log.info("Asking status to coordinator...");
-                transactionService.resolveExpired(transaction.getTxId(), transaction.getType());
+                transactionService.resolveExpired(transaction.getTxId());
             }
         }
     }

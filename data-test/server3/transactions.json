@@ -1,33 +1,45 @@
 [ {
-  "txId" : "187443a2-1bf3-459f-8ae1-1cd63706e8ef",
-  "coordinatorId" : "server-1",
-  "segmentIds" : [ "00000000-0000-0000-0000-000000000004" ],
+  "txId" : "40ef4da4-8003-4a85-8097-af262c6042ae",
+  "coordinatorId" : "server-3",
+  "segmentIds" : null,
   "type" : "CREATE_RESERVATION",
-  "decision" : "COMMIT",
-  "currentStatus" : "COMMITTED",
-  "participants" : { }
-}, {
-  "txId" : "9255b6ce-b406-4652-b016-a8031e22c262",
-  "coordinatorId" : "server-1",
-  "segmentIds" : [ "00000000-0000-0000-0000-000000000004" ],
-  "type" : "CREATE_RESERVATION",
-  "decision" : "COMMIT",
-  "currentStatus" : "COMMITTED",
-  "participants" : { }
-}, {
-  "txId" : "7773f3e8-4782-46b2-897c-67485469e52b",
-  "coordinatorId" : "server-1",
-  "segmentIds" : [ "00000000-0000-0000-0000-000000000004" ],
-  "type" : "CREATE_RESERVATION",
+  "logicalTimestamp" : 47,
   "decision" : "ABORT",
   "currentStatus" : "ABORTED",
-  "participants" : { }
+  "participants" : {
+    "server-1" : "PREPARING"
+  }
 }, {
-  "txId" : "8a81cf6d-bada-45a4-be32-1497c5b6b11f",
-  "coordinatorId" : "server-1",
-  "segmentIds" : [ "00000000-0000-0000-0000-000000000004" ],
+  "txId" : "a7cfbcfa-f64a-4f89-b2ba-e4f0de2d9d46",
+  "coordinatorId" : "server-3",
+  "segmentIds" : null,
   "type" : "CREATE_RESERVATION",
+  "logicalTimestamp" : 48,
   "decision" : "ABORT",
   "currentStatus" : "ABORTED",
-  "participants" : { }
+  "participants" : {
+    "server-1" : "PREPARING"
+  }
+}, {
+  "txId" : "17341084-2725-4f58-8a7d-c159ec7eedbc",
+  "coordinatorId" : "server-3",
+  "segmentIds" : null,
+  "type" : "CREATE_RESERVATION",
+  "logicalTimestamp" : 45,
+  "decision" : "ABORT",
+  "currentStatus" : "ABORTED",
+  "participants" : {
+    "server-1" : "PREPARING"
+  }
+}, {
+  "txId" : "5f2cd2d1-8560-46ee-8c73-ca1bb0307154",
+  "coordinatorId" : "server-3",
+  "segmentIds" : null,
+  "type" : "CREATE_RESERVATION",
+  "logicalTimestamp" : 46,
+  "decision" : "ABORT",
+  "currentStatus" : "ABORTED",
+  "participants" : {
+    "server-1" : "PREPARING"
+  }
 } ]

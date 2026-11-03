@@ -1,33 +1,43 @@
 [ {
-  "id" : "5b7f2efe-c775-456b-9faa-de4e485cece2",
-  "passengerId" : "dda28b53-c1e4-44e3-b1a3-31828a3f91c5",
+  "id" : "a5182f47-4366-4b02-a114-284561092061",
+  "passengerId" : "198a18e1-d4ac-4d09-96ee-6c75c79d35c3",
   "segments" : [ {
     "id" : "00000000-0000-0000-0000-000000000001",
     "serverId" : "server-1",
     "origin" : "Salvador",
     "destination" : "Feira De Santana",
     "price" : 60.0,
-    "availableSeats" : 3,
+    "availableSeats" : 0,
     "departureAt" : [ 2029, 11, 3, 7, 30 ],
     "arrivalAt" : [ 2029, 11, 3, 8, 30 ]
-  }, {
-    "id" : "00000000-0000-0000-0000-000000000002",
-    "serverId" : "server-2",
-    "origin" : "Feira De Santana",
-    "destination" : "Vitoria Da Conquista",
-    "price" : 80.0,
-    "availableSeats" : 3,
-    "departureAt" : [ 2029, 11, 3, 9, 30 ],
-    "arrivalAt" : [ 2029, 11, 3, 14, 30 ]
-  }, {
-    "id" : "00000000-0000-0000-0000-000000000004",
-    "serverId" : "server-3",
-    "origin" : "Vitoria Da Conquista",
-    "destination" : "Montes Claros",
-    "price" : 100.0,
-    "availableSeats" : 3,
-    "departureAt" : [ 2029, 11, 3, 15, 30 ],
-    "arrivalAt" : [ 2029, 11, 3, 20, 30 ]
   } ],
-  "totalPrice" : 240.0
+  "totalPrice" : 60.0
+}, {
+  "id" : "f4c41798-a0e1-4840-8408-368325ff83ea",
+  "passengerId" : "dfd4d3ca-7994-48e7-ad9d-f1299ae9b5ba",
+  "segments" : [ {
+    "id" : "00000000-0000-0000-0000-000000000001",
+    "serverId" : "server-1",
+    "origin" : "Salvador",
+    "destination" : "Feira De Santana",
+    "price" : 60.0,
+    "availableSeats" : 0,
+    "departureAt" : [ 2029, 11, 3, 7, 30 ],
+    "arrivalAt" : [ 2029, 11, 3, 8, 30 ]
+  } ],
+  "totalPrice" : 60.0
+}, {
+  "id" : "7517eff6-4171-4e93-ba73-8e0c8ad6c97e",
+  "passengerId" : "750b9616-7c7f-4e51-979a-f2da606f6a41",
+  "segments" : [ {
+    "id" : "00000000-0000-0000-0000-000000000001",
+    "serverId" : "server-1",
+    "origin" : "Salvador",
+    "destination" : "Feira De Santana",
+    "price" : 60.0,
+    "availableSeats" : 0,
+    "departureAt" : [ 2029, 11, 3, 7, 30 ],
+    "arrivalAt" : [ 2029, 11, 3, 8, 30 ]
+  } ],
+  "totalPrice" : 60.0
 } ]

@@ -2,15 +2,15 @@
   "id" : "391385d9-a1e8-465e-8c52-3560019827c3",
   "driverId" : "fce3ab34-5ce2-482d-b9b5-2b09598d30fc",
   "seats" : 3,
-  "departureAt" : [ 2026, 11, 3, 7, 30 ],
+  "departureAt" : [ 2029, 11, 3, 7, 30 ],
   "segments" : [ {
     "id" : "225d2faa-d9d1-4dd5-b816-568a220b56fd",
     "serverId" : "server-1",
     "origin" : "Feira De Santana",
     "destination" : "Salvador",
     "price" : 60.0,
-    "availableSeats" : 1,
-    "departureAt" : [ 2026, 11, 3, 7, 30 ],
-    "arrivalAt" : [ 2026, 11, 3, 8, 30 ]
+    "availableSeats" : 4,
+    "departureAt" : [ 2029, 11, 3, 7, 30 ],
+    "arrivalAt" : [ 2029, 11, 3, 8, 30 ]
   } ]
 } ]

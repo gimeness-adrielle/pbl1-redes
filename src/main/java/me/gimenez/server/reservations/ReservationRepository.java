@@ -30,10 +30,12 @@ public class ReservationRepository {
     @PostConstruct
     public void init() {
         this.path = Path.of(storagePath, "reservations.json");
-        loadData();
+        reload();
     }
 
-    private void loadData(){
+    public synchronized void reload() {
+        reservations.clear();
+
         try {
             if (Files.exists(path)) {
                 List<Reservation> reservations = mapper.readValue(path.toFile(), new TypeReference<>() {});
@@ -60,19 +62,15 @@ public class ReservationRepository {
         return reservations.get(id);
     }
 
-    public boolean delete(UUID id) {
+    public boolean delete(UUID id) throws IOException {
         Reservation isRemoved = reservations.remove(id);
 
         if (isRemoved == null) {
             return false;
         }
 
-        try {
-            mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), reservations.values());
-            return true;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), reservations.values());
+        return true;
     }
 
     public void deleteBySegmentId(List<UUID> segmentsToDelete) throws IOException {

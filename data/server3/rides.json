@@ -2,15 +2,15 @@
   "id" : "d3a9863e-a3ae-4324-b1e6-f270e22cf4ed",
   "driverId" : "dd94b7f7-3b36-4ea5-871c-367bce043f5e",
   "seats" : 3,
-  "departureAt" : [ 2026, 11, 3, 11, 30 ],
+  "departureAt" : [ 2029, 11, 3, 11, 30 ],
   "segments" : [ {
     "id" : "2ce1c44c-4140-417d-9618-ced0dd5c1bbc",
     "serverId" : "server-3",
     "origin" : "Vitoria Da Conquista",
     "destination" : "Montes Claros",
     "price" : 80.0,
-    "availableSeats" : 1,
-    "departureAt" : [ 2026, 11, 3, 11, 30 ],
-    "arrivalAt" : [ 2026, 11, 3, 17, 30 ]
+    "availableSeats" : 4,
+    "departureAt" : [ 2029, 11, 3, 11, 30 ],
+    "arrivalAt" : [ 2029, 11, 3, 17, 30 ]
   } ]
 } ]

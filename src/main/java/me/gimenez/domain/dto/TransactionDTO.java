@@ -1,5 +1,7 @@
 package me.gimenez.domain.dto;
 
+import me.gimenez.domain.models.Transaction;
+import me.gimenez.domain.models.TransactionDecision;
 import me.gimenez.domain.models.TransactionStatus;
 import me.gimenez.domain.models.TransactionType;
 
@@ -11,16 +13,31 @@ public final class TransactionDTO {
     public record Request(
             UUID txId,
             String coordinatorId,
-            long logicalTimestamp,
             List<UUID> segmentIds,
-            TransactionType transactionType
-    ) {}
+            TransactionType transactionType,
+            long timestamp
+    ) {
+
+        public static Transaction from(TransactionDTO.Request request){
+            return new Transaction(
+                    request.txId(),
+                    request.coordinatorId(),
+                    request.segmentIds(),
+                    request.transactionType(),
+                    request.timestamp()
+            );
+        }
+    }
 
     public record Response(
             UUID txId,
             TransactionStatus status,
-            String serverId,
-            long logicalTimestamp
+            String serverId
     ) {}
+
+    public record HealthResponse(
+            UUID txId,
+            TransactionDecision decision
+    ){}
 
 }

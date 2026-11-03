@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.gimenez.domain.dto.ReservationDTO;
 import me.gimenez.domain.dto.TransactionDTO;
-import me.gimenez.domain.models.Reservation;
-import me.gimenez.domain.models.Segment;
-import me.gimenez.domain.models.TransactionDecision;
-import me.gimenez.domain.models.TransactionType;
+import me.gimenez.domain.models.*;
 import me.gimenez.util.LamportClock;
 import me.gimenez.util.PeerProperties;
 import org.springframework.core.ParameterizedTypeReference;
@@ -25,19 +22,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Component
 public class PeerClient {
-    private final LamportClock lamportClock;
     private final PeerProperties peerProperties;
     private final RestClient restClient;
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     public List<Reservation> fetchReservations (List<UUID> segmentIds){
-        lamportClock.tick();
-
         List<CompletableFuture<List<ReservationDTO.Response>>> futures = peerProperties.peerUrls().stream()
                 .map(peer -> CompletableFuture
                         .supplyAsync(() -> fetchReservationsFrom(peer, segmentIds), executor)
                         .exceptionally(e -> {
-                            log.error("[ERROR] cannot found reservations from {}", peer, e);
+                            log.error("[ERROR] cannot found reservations from {}", peer);
                             return List.of();
                         })
                 ).toList();
@@ -68,13 +62,11 @@ public class PeerClient {
     }
 
     public List<Segment> fetchSegments(LocalDate date){
-        lamportClock.tick();
-
         List<CompletableFuture<List<Segment>>> futures = peerProperties.peerUrls().stream()
                 .map(peer -> CompletableFuture
                         .supplyAsync(() -> fetchFrom(peer, date), executor)
                         .exceptionally(e -> {
-                            log.error("[ERROR] cannot found segments from {} from date {}", peer, date, e);
+                            log.error("[ERROR] cannot found segments from {} from date {}", peer, date);
                             return List.of();
                         })
                 ).toList();
@@ -110,29 +102,29 @@ public class PeerClient {
 
         List<CompletableFuture<TransactionDTO.Response>> futures = peerTable.entrySet().stream()
                 .map(entry -> CompletableFuture
-                        .supplyAsync(() -> prepareFrom(txId, entry.getValue(), segmentsByServer.get(entry.getKey()), transactionType, timestamp))
+                        .supplyAsync(() -> prepareFrom(txId, entry.getValue(), segmentsByServer.get(entry.getKey()), transactionType, timestamp), executor)
                         .exceptionally(e -> {
                             log.warn("[ERROR]: Cannot prepare transaction for {} from {}", entry.getKey(), txId);
                             return null;
                         }))
                 .toList();
 
-        List<TransactionDTO.Response> responses = futures.stream()
+        return futures.stream()
                 .map(CompletableFuture::join)
                 .toList();
-
-        responses.forEach(response -> {lamportClock.update(response.logicalTimestamp());});
-        return responses;
     }
 
-    public List<TransactionDTO.Response> sendAbort(UUID txId, List<String> serversToSend, long timestamp){
-        List<String> peerUrls = getPeerServers(serversToSend);
+    public List<TransactionDTO.Response> sendDecision(UUID txId, List<String> serversToSend, String decision){
+        List<String> peerUrls = serversToSend.stream()
+                .filter(serverId -> !serverId.equals(peerProperties.selfId()))
+                .map(peerProperties::getPeerUrl)
+                .toList();
 
         List<CompletableFuture<TransactionDTO.Response>> futures = peerUrls.stream()
                 .map(peerUrl -> CompletableFuture
-                        .supplyAsync(() -> abortFrom(txId, peerUrl, timestamp), executor)
+                        .supplyAsync(() -> sendDecisionTo(txId, peerUrl, decision), executor)
                         .exceptionally(e -> {
-                            log.warn("[ERROR]: Cannot abort transaction for {} from {}", peerUrl, txId);
+                            log.warn("[ERROR]: Cannot {} transaction for {} from {}", decision, peerUrl, txId);
                             return null;
                         }))
                 .toList();
@@ -142,25 +134,16 @@ public class PeerClient {
                 .toList();
     }
 
-    public List<TransactionDTO.Response> sendCommit(UUID txId, List<String> serversToSend, TransactionType transactionType){
-        List<String> peerUrls = getPeerServers(serversToSend);
-
-        List<CompletableFuture<TransactionDTO.Response>> futures = peerUrls.stream()
-                .map(peerUrl -> CompletableFuture
-                        .supplyAsync(() -> commitFrom(txId, peerUrl, transactionType), executor)
-                        .exceptionally(e -> {
-                            log.warn("[ERROR]: Cannot commit transaction for {} from {}", peerUrl, txId);
-                            return null;
-                        }))
-                .toList();
-
-        return futures.stream()
-                .map(CompletableFuture::join)
-                .toList();
+    private TransactionDTO.Response sendDecisionTo(UUID txId, String peerUrl, String decision) {
+        log.debug("Sending {} to {}", decision, peerUrl);
+        return restClient.post()
+                .uri(peerUrl + "/api/transactions/{txId}/{decision}", txId, decision)
+                .retrieve()
+                .body(TransactionDTO.Response.class);
     }
 
     private TransactionDTO.Response prepareFrom(UUID txId, String peerUrl, List<UUID> segmentIds, TransactionType transactionType, long timestamp) {
-        TransactionDTO.Request request = new TransactionDTO.Request(txId, peerProperties.selfId(), timestamp, segmentIds, transactionType);
+        TransactionDTO.Request request = new TransactionDTO.Request(txId, peerProperties.selfId(), segmentIds, transactionType, timestamp);
 
         log.debug("Sending prepare to {}", peerUrl);
         return restClient.post()
@@ -170,36 +153,11 @@ public class PeerClient {
                 .body(TransactionDTO.Response.class);
     }
 
-    private TransactionDTO.Response commitFrom (UUID txId, String peerUrl, TransactionType transactionType){
-        log.debug("Sending commit to {}", peerUrl);
-        return restClient.post()
-                .uri(peerUrl + "/api/transactions/{txId}/commit", txId)
-                .body(transactionType)
-                .retrieve()
-                .body(TransactionDTO.Response.class);
-    }
-
-    private TransactionDTO.Response abortFrom(UUID txId, String peerUrl, long timestamp) {
-        log.debug("Sending abort to {}", peerUrl);
-        return restClient.post()
-                .uri(peerUrl + "/api/transactions/{txId}/abort", txId)
-                .body(timestamp)
-                .retrieve()
-                .body(TransactionDTO.Response.class);
-    }
-
-    public TransactionDecision askStatus(String coordinatorId, UUID txId) {
+    public TransactionDTO.HealthResponse askStatus(String coordinatorId, UUID txId) {
         log.debug("Asking {} the status from transaction {}", coordinatorId, txId);
         return restClient.get()
                 .uri(peerProperties.getPeerUrl(coordinatorId) + "/api/transactions/{txId}/status", txId)
                 .retrieve()
-                .body(TransactionDecision.class);
-    }
-
-    private List<String> getPeerServers(List<String> serversToSend){
-        return serversToSend.stream()
-                .filter(serverId -> !serverId.equals(peerProperties.selfId()))
-                .map(peerProperties::getPeerUrl)
-                .toList();
+                .body(TransactionDTO.HealthResponse.class);
     }
 }

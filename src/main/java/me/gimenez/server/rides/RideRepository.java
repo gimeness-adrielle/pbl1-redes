@@ -32,15 +32,15 @@ public class RideRepository {
     }
 
     @PostConstruct
-    public void init(){
+    public void init() {
         this.path = Path.of(storagePath, "rides.json");
-        loadData();
+        reload();
     }
 
-    /** Loads the ride's data JSON into a {@link ConcurrentHashMap}, where the key is the object's
-     * unique identifier and the value is the object itself. This is necessary to speed up queries.
-     */
-    private void loadData(){
+    public synchronized void reload() {
+        rides.clear();
+        segments.clear();
+
         try {
             if (Files.exists(path)) {
                 List<Ride> rides = mapper.readValue(path.toFile(), new TypeReference<List<Ride>>() {});

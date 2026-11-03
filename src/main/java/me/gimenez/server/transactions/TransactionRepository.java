@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -33,12 +34,14 @@ public class TransactionRepository {
     }
 
     @PostConstruct
-    public void init(){
+    public void init() {
         this.path = Path.of(storagePath, "transactions.json");
-        loadData();
+        reload();
     }
 
-    private void loadData(){
+    public synchronized void reload() {
+        transactions.clear();
+
         try {
             if (Files.exists(path)) {
                 List<Transaction> transactions = mapper.readValue(path.toFile(), new TypeReference<>() {});
@@ -69,6 +72,10 @@ public class TransactionRepository {
 
     public Transaction findById(UUID txId) {
         return transactions.get(txId);
+    }
+
+    public Collection<Transaction> getAllTransactions() {
+        return transactions.values();
     }
 
 }
