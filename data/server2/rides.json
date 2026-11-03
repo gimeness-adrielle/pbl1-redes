@@ -9,7 +9,7 @@
     "origin" : "Salvador",
     "destination" : "Vitoria Da Conquista",
     "price" : 100.0,
-    "availableSeats" : 4,
+    "availableSeats" : 3,
     "departureAt" : [ 2029, 11, 3, 9, 30 ],
     "arrivalAt" : [ 2029, 11, 3, 10, 30 ]
   } ]

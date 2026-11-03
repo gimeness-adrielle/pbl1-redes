@@ -89,4 +89,9 @@ public class ReservationRepository {
                 .toList();
     }
 
+    public synchronized void saveIfAbsent(Reservation reservation) throws IOException {
+        if (reservations.containsKey(reservation.id())) {return;}
+        save(reservation);
+    }
+
 }

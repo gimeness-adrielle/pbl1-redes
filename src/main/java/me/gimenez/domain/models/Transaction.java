@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import me.gimenez.domain.dto.ReservationDTO;
 import me.gimenez.domain.dto.TransactionDTO;
 import me.gimenez.util.LamportClock;
 
@@ -37,13 +38,17 @@ public class Transaction implements Comparable<Transaction> {
     @Setter
     private List<UUID> segmentIds;
 
+    @Getter
+    private final ReservationDTO.Data reservationData;
+
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public Transaction(
             @JsonProperty("txId") UUID txId,
             @JsonProperty("coordinatorId") String coordinatorId,
             @JsonProperty("segmentIds") List<UUID> segmentIds,
             @JsonProperty("type") TransactionType type,
-            @JsonProperty("logicalTimestamp") long logicalTimestamp
+            @JsonProperty("logicalTimestamp") long logicalTimestamp,
+            @JsonProperty("reservationData") ReservationDTO.Data reservationData
     ){
         this.txId = txId;
         this.coordinatorId = coordinatorId;
@@ -52,6 +57,7 @@ public class Transaction implements Comparable<Transaction> {
         this.currentStatus = TransactionStatus.PREPARED;
         this.type = type;
         this.logicalTimestamp = logicalTimestamp;
+        this.reservationData = reservationData;
     }
 
     public synchronized TransactionDecision getDecision() {

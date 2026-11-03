@@ -2,6 +2,7 @@ package me.gimenez.server.transactions;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.gimenez.domain.dto.ReservationDTO;
 import me.gimenez.domain.dto.TransactionDTO;
 import me.gimenez.domain.models.Transaction;
 import me.gimenez.domain.models.TransactionDecision;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +32,7 @@ public class TransactionCoordinatorService {
     private final ScheduledExecutorService scheduler;
 
     public boolean remoteCreateReservation(Map<String, List<UUID>> segmentsByServer,
-                                        boolean hasLocalSegments, TransactionType type
+                                        boolean hasLocalSegments, TransactionType type, ReservationDTO.Data reservationData
     ) {
         log.info("Remote reservation applied.");
         UUID txId = UUID.randomUUID();
@@ -41,7 +41,7 @@ public class TransactionCoordinatorService {
         List<String> participants = segmentsByServer.keySet().stream().toList();
 
         // PHASE 1: PREPARE
-        boolean allPrepared = prepareDecision(txId, segmentsByServer, hasLocalSegments, participants, type);
+        boolean allPrepared = prepareDecision(txId, segmentsByServer, hasLocalSegments, participants, type, reservationData);
 
         // ABORT: if not everyone responded with "PREPARED"
         if (!allPrepared) {
@@ -56,13 +56,13 @@ public class TransactionCoordinatorService {
 
     private boolean prepareDecision(UUID txId, Map<String, List<UUID>> segmentsByServer,
                                     boolean hasLocalSegments, List<String> participants,
-                                    TransactionType type
+                                    TransactionType type, ReservationDTO.Data reservationData
     ){
         long timestamp = lamportClock.tick();
         // If there are local operations, it executes the local prepare step.
         if (hasLocalSegments){
             List<UUID> localSegmentIds = segmentsByServer.get(peerProperties.selfId());
-            Transaction tx = new Transaction(txId, peerProperties.selfId(), localSegmentIds, type, timestamp);
+            Transaction tx = new Transaction(txId, peerProperties.selfId(), localSegmentIds, type, timestamp, reservationData);
             participants.forEach(id -> tx.updateParticipantStatus(id, TransactionStatus.PREPARING));
 
             TransactionStatus status = transactionService.prepare(tx);
@@ -71,7 +71,7 @@ public class TransactionCoordinatorService {
             if(!preparedLocal){ return false; }
         } else {
             try {
-                Transaction tx = new Transaction(txId, peerProperties.selfId(), null, type, timestamp);
+                Transaction tx = new Transaction(txId, peerProperties.selfId(), null, type, timestamp, reservationData);
                 participants.forEach(id -> tx.updateParticipantStatus(id, TransactionStatus.PREPARING));
 
                 transactionRepository.save(tx);

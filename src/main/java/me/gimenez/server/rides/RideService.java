@@ -215,7 +215,7 @@ public class RideService {
         }
 
         boolean success = coordinatorService
-                .remoteCreateReservation(segmentsByServer, hasLocalSegments, TransactionType.CANCEL_RESERVATION);
+                .remoteCreateReservation(segmentsByServer, hasLocalSegments, TransactionType.CANCEL_RESERVATION, null);
 
         if (!success) { return; }
         try{

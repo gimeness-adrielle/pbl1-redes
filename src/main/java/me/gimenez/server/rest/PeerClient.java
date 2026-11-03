@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import me.gimenez.domain.dto.ReservationDTO;
 import me.gimenez.domain.dto.TransactionDTO;
 import me.gimenez.domain.models.*;
-import me.gimenez.util.LamportClock;
 import me.gimenez.util.PeerProperties;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;

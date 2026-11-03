@@ -9,7 +9,7 @@
     "origin" : "Vitoria Da Conquista",
     "destination" : "Montes Claros",
     "price" : 80.0,
-    "availableSeats" : 4,
+    "availableSeats" : 3,
     "departureAt" : [ 2029, 11, 3, 11, 30 ],
     "arrivalAt" : [ 2029, 11, 3, 17, 30 ]
   } ]

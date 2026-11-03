@@ -1,6 +1,7 @@
 package me.gimenez.server.reservations;
 
 import lombok.RequiredArgsConstructor;
+import me.gimenez.domain.dto.ReservationDTO;
 import me.gimenez.domain.models.*;
 import me.gimenez.server.exceptions.NotFoundException;
 import me.gimenez.server.exceptions.PersistenceErrorException;
@@ -39,6 +40,8 @@ public class ReservationService {
                         )
                 ));
 
+        UUID reservationId = UUID.randomUUID();
+
         List<UUID> mySegmentsIds = segmentsByServer.get(peerProperties.selfId());
         // If the booking transaction contains local segments.
         boolean hasLocalSegments = mySegmentsIds != null;
@@ -48,16 +51,13 @@ public class ReservationService {
             return createLocalReservation(mySegmentsIds, user);
         }
 
-        boolean success = coordinatorService.remoteCreateReservation(segmentsByServer, hasLocalSegments, TransactionType.CREATE_RESERVATION);
+        ReservationDTO.Data reservationData = new ReservationDTO.Data(reservationId, user.id(), segments);
+        boolean success = coordinatorService
+                .remoteCreateReservation(segmentsByServer, hasLocalSegments, TransactionType.CREATE_RESERVATION, reservationData);
 
         if (!success) { return null;}
-        Reservation reservation = new Reservation(UUID.randomUUID(), user.id(), segments);
-        try {
-            reservationRepository.save(reservation);
-            return reservation;
-        } catch (IOException e) {
-            throw new ReservationNotCreatedException("Os assentos foram confirmados mas houve uma falha ao persistir o registro da reserva." + e);
-        }
+        return buildReservation(reservationId, segments, user.id());
+
     }
 
     private Reservation createLocalReservation(List<UUID> segmentIds, User user){
@@ -83,6 +83,16 @@ public class ReservationService {
             throw new ReservationNotCreatedException("Não foi possível reservar o itinerário. Tente novamente mais tarde.");
         } finally {
             locks.forEach(ReentrantLock::unlock);
+        }
+    }
+
+    public Reservation buildReservation(UUID reservationId, List<Segment> segments, UUID userId) {
+        Reservation reservation = new Reservation(reservationId, userId , segments);
+        try {
+            reservationRepository.saveIfAbsent(reservation);
+            return reservation;
+        } catch (IOException e) {
+            throw new ReservationNotCreatedException("Os assentos foram confirmados mas houve uma falha ao persistir o registro da reserva." + e);
         }
     }
 
@@ -115,7 +125,9 @@ public class ReservationService {
             return;
         }
 
-        boolean success = coordinatorService.remoteCreateReservation(segmentsByServer, hasLocalSegments, TransactionType.CANCEL_RESERVATION);
+        ReservationDTO.Data reservationData = new ReservationDTO.Data(reservation.id(), reservation.passengerId(), reservation.segments());
+        boolean success = coordinatorService
+                .remoteCreateReservation(segmentsByServer, hasLocalSegments, TransactionType.CANCEL_RESERVATION, reservationData);
 
         if (!success) { return; }
         try {

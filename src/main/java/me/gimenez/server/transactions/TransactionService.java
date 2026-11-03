@@ -11,7 +11,6 @@ import me.gimenez.server.rest.PeerClient;
 import me.gimenez.util.HoldManager;
 import me.gimenez.util.LockService;
 import me.gimenez.util.PeerProperties;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

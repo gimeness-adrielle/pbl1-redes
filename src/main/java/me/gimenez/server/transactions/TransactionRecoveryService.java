@@ -2,7 +2,9 @@ package me.gimenez.server.transactions;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.gimenez.domain.dto.ReservationDTO;
 import me.gimenez.domain.models.Transaction;
+import me.gimenez.server.reservations.ReservationService;
 import me.gimenez.server.rest.PeerClient;
 import me.gimenez.util.HoldManager;
 import me.gimenez.util.PeerProperties;
@@ -22,23 +24,12 @@ public class TransactionRecoveryService {
     private final TransactionRepository transactionRepository;
     private final TransactionService transactionService;
     private final TransactionCoordinatorService coordinatorService;
+    private final ReservationService reservationService;
 
     @EventListener(ApplicationReadyEvent.class)
     public void recoverTransactions() {
         log.info("Starting transaction recovery...");
-        readHolds();
-        retryTransactions();
-    }
 
-    public void readHolds(){
-        List<Transaction> pendingTransactions = transactionRepository.getPendingTransactions();
-
-        for (Transaction transaction : pendingTransactions) {
-            holdManager.hold(transaction.getSegmentIds());
-        }
-    }
-
-    public void retryTransactions(){
         log.info("Searching for pending transactions from last time...");
         List<Transaction> pendingTransactions = transactionRepository.getPendingTransactions();
 
@@ -48,24 +39,37 @@ public class TransactionRecoveryService {
         }
 
         log.info("Found {} pending transactions.", pendingTransactions.size());
+
+        readHolds(pendingTransactions);
+        retryTransactions(pendingTransactions);
+    }
+
+    public void readHolds(List<Transaction> pendingTransactions){
         for (Transaction transaction : pendingTransactions) {
-            if (transaction.getCoordinatorId().equals(peerProperties.selfId())){
+            holdManager.hold(transaction.getSegmentIds());
+        }
+    }
+
+    public void retryTransactions(List<Transaction> pendingTransactions){
+        for (Transaction tx : pendingTransactions) {
+            if (tx.getCoordinatorId().equals(peerProperties.selfId())){
                 log.info("Sending abort/commit for pending transactions...");
-                switch (transaction.getDecision()) {
+
+                List<String> participants = tx.getParticipants().keySet().stream().toList();
+                switch (tx.getDecision()) {
                     case PREPARE:{
-                        transactionService.abort(transaction.getTxId());
-                        peerClient.sendDecision(transaction.getTxId(), transaction.getParticipants().keySet().stream().toList(), "abort");
+                        transactionService.abort(tx.getTxId());
+                        peerClient.sendDecision(tx.getTxId(), participants, "abort");
                         break;
                     }
                     case COMMIT:
-                        coordinatorService.retryCommit(
-                                transaction.getTxId(),
-                                transaction.getParticipants().keySet().stream().toList()
-                        );
+                        coordinatorService.retryCommit(tx.getTxId(), participants);
+                        ReservationDTO.Data reservationData = tx.getReservationData();
+                        reservationService.buildReservation(reservationData.reservationId(), reservationData.segments(), reservationData.userId());
                 }
             } else{
                 log.info("Asking status to coordinator...");
-                transactionService.resolveExpired(transaction.getTxId());
+                transactionService.resolveExpired(tx.getTxId());
             }
         }
     }

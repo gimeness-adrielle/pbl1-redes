@@ -24,7 +24,8 @@ public final class TransactionDTO {
                     request.coordinatorId(),
                     request.segmentIds(),
                     request.transactionType(),
-                    request.timestamp()
+                    request.timestamp(),
+                    null
             );
         }
     }

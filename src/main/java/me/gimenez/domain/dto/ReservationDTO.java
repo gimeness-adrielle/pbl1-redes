@@ -15,4 +15,10 @@ public final class ReservationDTO {
             UUID id,
             List<SegmentDTO.Response> segments
     ) {}
+
+    public record Data(
+            UUID reservationId,
+            UUID userId,
+            List<Segment> segments
+    ) {}
 }

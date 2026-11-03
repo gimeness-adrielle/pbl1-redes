@@ -9,7 +9,7 @@
     "origin" : "Feira De Santana",
     "destination" : "Salvador",
     "price" : 60.0,
-    "availableSeats" : 4,
+    "availableSeats" : 3,
     "departureAt" : [ 2029, 11, 3, 7, 30 ],
     "arrivalAt" : [ 2029, 11, 3, 8, 30 ]
   } ]
