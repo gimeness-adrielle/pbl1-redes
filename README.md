@@ -109,5 +109,6 @@ Exemplo de resposta:
 
 Consulte a descrição da API:
 
-
-
+```
+https://editor.swagger.io/?url=https://raw.githubusercontent.com/gimeness-adrielle/pbl1-redes/refs/heads/main/api-docs.json
+```
