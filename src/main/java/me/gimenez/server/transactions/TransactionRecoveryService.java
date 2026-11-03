@@ -45,8 +45,10 @@ public class TransactionRecoveryService {
     }
 
     public void readHolds(List<Transaction> pendingTransactions){
-        for (Transaction transaction : pendingTransactions) {
-            holdManager.hold(transaction.getSegmentIds());
+        for (Transaction tx : pendingTransactions) {
+            if (tx.getSegmentIds() != null){
+                holdManager.hold(tx.getSegmentIds());
+            }
         }
     }
 

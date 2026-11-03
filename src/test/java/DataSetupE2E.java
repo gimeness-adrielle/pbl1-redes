@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 public class DataSetupE2E {
 
-    static final Path DIR = Path.of("./data-test");
+    static final Path DIR = Path.of(System.getenv().getOrDefault("DATA_DIR", "./data-test"));
 
     // Segments IDs
     static final UUID S1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
@@ -33,30 +33,16 @@ public class DataSetupE2E {
     final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     void reset() throws IOException {
-        deleteDirectory();
-        createDirectories();
-        setupInitialData();
-    }
-
-    private void deleteDirectory() throws IOException {
-        if (!Files.exists(DIR)) return;
-
-        try (Stream<Path> paths = Files.walk(DIR)) {
-            paths.sorted(Comparator.reverseOrder())
-                    .forEach(path -> {
-                        try {
-                            Files.delete(path);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-        }
-    }
-
-    private void createDirectories() throws IOException {
         for (String server : List.of("server1", "server2", "server3")) {
-            Files.createDirectories(DIR.resolve(server));
+            Path dir = DIR.resolve(server);
+            Files.createDirectories(dir);
+            try (Stream<Path> files = Files.list(dir)) {
+                for (Path file : files.toList()) {
+                    Files.delete(file);
+                }
+            }
         }
+        setupInitialData();
     }
 
     private void setupInitialData() throws IOException {

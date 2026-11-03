@@ -58,22 +58,23 @@ public class TransactionRepository {
     }
 
     public List<Transaction> getPendingTransactions() {
-        List<Transaction> pendingTransactions = new ArrayList<>();
+        Set<UUID> pendingIds = new HashSet<>();
 
-        for (Transaction tx: transactions.values()) {
-            if (tx.getCoordinatorId().equals(peerProperties.selfId())){
-                for (TransactionStatus status: tx.getParticipants().values()){
-                    if (isPending(status)){
-                        pendingTransactions.add(tx);
-                    }
-                }
+        for (Transaction tx : transactions.values()) {
+            if (isPending(tx.getCurrentStatus())) {
+                pendingIds.add(tx.getTxId());
             }
-            if (isPending(tx.getCurrentStatus())){
-                pendingTransactions.add(tx);
+
+            if (tx.getCoordinatorId().equals(peerProperties.selfId())
+                    && tx.getParticipants() != null
+                    && tx.getParticipants().values().stream().anyMatch(this::isPending)) {
+                pendingIds.add(tx.getTxId());
             }
         }
 
-        return pendingTransactions;
+        return pendingIds.stream()
+                .map(transactions::get)
+                .toList();
     }
 
     private boolean isPending(TransactionStatus status){

@@ -19,7 +19,7 @@ class TransactionE2ETest {
     private static final String SERVER2 = "http://localhost:7772";
     private static final String SERVER3 = "http://localhost:7773";
 
-    private final DataSetupE2E data = new DataSetupE2E();
+    private static final DataSetupE2E data = new DataSetupE2E();
 
     private RestClient c1;
     private RestClient c2;
@@ -111,7 +111,7 @@ class TransactionE2ETest {
     // Concurrence test
     @Test
     void shouldBookCorrectlyUnderDistributedLoad() throws Exception {
-        int requests = 12;
+        int requests = 200;
 
         List<RestClient> clients = List.of(c1, c2, c3);
 
