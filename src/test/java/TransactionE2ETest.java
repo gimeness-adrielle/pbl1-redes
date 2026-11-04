@@ -15,9 +15,9 @@ import static org.assertj.core.api.Assertions.*;
 
 class TransactionE2ETest {
 
-    private static final String SERVER1 = "http://localhost:7771";
-    private static final String SERVER2 = "http://localhost:7772";
-    private static final String SERVER3 = "http://localhost:7773";
+    private static final String SERVER1 = System.getenv().getOrDefault("SERVER1_URL", "http://localhost:7771");
+    private static final String SERVER2 = System.getenv().getOrDefault("SERVER2_URL", "http://localhost:7772");
+    private static final String SERVER3 = System.getenv().getOrDefault("SERVER3_URL", "http://localhost:7773");
 
     private static final DataSetupE2E data = new DataSetupE2E();
 
@@ -290,13 +290,18 @@ class TransactionE2ETest {
         }
     }
 
-    private void compose(String... args) throws Exception {
-        List<String> command = new ArrayList<>(List.of("docker", "compose", "-f", "compose-test.yaml"));
+    private void compose(String action, String containerName) throws Exception {
+        String url = "http://localhost/containers/" + containerName + "/" + action;
 
-        command.addAll(List.of(args));
+        List<String> command = List.of(
+                "curl",
+                "-s",
+                "--unix-socket", "/var/run/docker.sock",
+                "-X", "POST",
+                url
+        );
 
         Process process = new ProcessBuilder(command)
-                .directory(new File(System.getProperty("user.dir")))
                 .inheritIO()
                 .start();
 

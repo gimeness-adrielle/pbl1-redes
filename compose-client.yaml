@@ -2,7 +2,7 @@ services:
   client1:
     build: .
     container_name: client1
-    command: ["client"]
+    command: ["java", "-jar", "app.jar", "client"]
     environment:
       SERVER_IP: ${SERVER1_IP}
       SOCKET_PORT: ${SERVER1_SOCKET_PORT}
@@ -12,7 +12,7 @@ services:
   client2:
     build: .
     container_name: client2
-    command: ["client"]
+    command: ["java", "-jar", "app.jar", "client"]
     environment:
       SERVER_IP: ${SERVER2_IP}
       SOCKET_PORT: ${SERVER2_SOCKET_PORT}
@@ -22,7 +22,7 @@ services:
   client3:
     build: .
     container_name: client3
-    command: ["client"]
+    command: ["java", "-jar", "app.jar", "client"]
     environment:
       SERVER_IP: ${SERVER3_IP}
       SOCKET_PORT: ${SERVER3_SOCKET_PORT}

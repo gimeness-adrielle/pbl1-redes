@@ -42,6 +42,36 @@ Para cliente (substitua client1 para o serviço que quer executar)
 docker compose -f compose-client.yaml up --build client1
 ```
 
+### Como rodar os testes
+
+Primeiro, suba os servidores de teste:
+
+```
+docker compose -f compose-test.yaml up --build -d
+```
+
+Depois, rode os testes um por um:
+
+```
+docker compose -f compose-test.yaml run --rm test-runner mvn test -Dtest=TransactionE2ETest#shouldSuccessfullyBook_whenReservationIsValid -Dsurefire.useFile=false
+```
+
+```
+docker compose -f compose-test.yaml run --rm test-runner mvn test -Dtest=TransactionE2ETest#shouldRejectReservation_whenNoSeatsAvailable -Dsurefire.useFile=false
+```
+
+```
+docker compose -f compose-test.yaml run --rm test-runner mvn test -Dtest=TransactionE2ETest#shouldBookCorrectlyUnderDistributedLoad -Dsurefire.useFile=false
+```
+
+```
+docker compose -f compose-test.yaml run --rm test-runner mvn test -Dtest=TransactionE2ETest#shouldRejectReservation_whenParticipantIsUnavailable -Dsurefire.useFile=false
+```
+
+```
+docker compose -f compose-test.yaml run --rm test-runner mvn test -Dtest=TransactionE2ETest#shouldRespectPrecedence_whenServersCompeteForLastSeat -Dsurefire.useFile=false
+```
+
 ## Protocolo de comunicação
 
 ### (Sockets TCP/IP)

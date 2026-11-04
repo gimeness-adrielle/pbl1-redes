@@ -1,0 +1,11 @@
+[ {
+  "txId" : "9d0020e3-67e0-4d28-b661-25489749c74a",
+  "coordinatorId" : "server-2",
+  "segmentIds" : [ "00000000-0000-0000-0000-000000000001" ],
+  "type" : "CREATE_RESERVATION",
+  "logicalTimestamp" : 1,
+  "reservationData" : null,
+  "decision" : "COMMIT",
+  "currentStatus" : "COMMITTED",
+  "participants" : { }
+} ]

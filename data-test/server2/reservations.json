@@ -1,0 +1,15 @@
+[ {
+  "id" : "13cccab8-40bb-4716-988c-1905e63f68ad",
+  "passengerId" : "0b86bf3d-70d8-41db-85f2-212440991978",
+  "segments" : [ {
+    "id" : "00000000-0000-0000-0000-000000000001",
+    "serverId" : "server-1",
+    "origin" : "Salvador",
+    "destination" : "Feira De Santana",
+    "price" : 60.0,
+    "availableSeats" : 1,
+    "departureAt" : [ 2029, 11, 3, 7, 30 ],
+    "arrivalAt" : [ 2029, 11, 3, 8, 30 ]
+  } ],
+  "totalPrice" : 60.0
+} ]

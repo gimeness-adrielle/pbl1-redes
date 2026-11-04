@@ -2,7 +2,7 @@ services:
   server1:
     build: .
     container_name: server1
-    command: ["server"]
+    command: ["java", "-jar", "app.jar", "server"]
     env_file:
       - .env
     environment:
@@ -17,7 +17,7 @@ services:
   server2:
     build: .
     container_name: server2
-    command: ["server"]
+    command: ["java", "-jar", "app.jar", "server"]
     env_file:
       - .env
     environment:
@@ -32,7 +32,7 @@ services:
   server3:
     build: .
     container_name: server3
-    command: ["server"]
+    command: ["java", "-jar", "app.jar", "server"]
     env_file:
       - .env
     environment:

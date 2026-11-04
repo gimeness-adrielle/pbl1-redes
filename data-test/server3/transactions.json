@@ -1,1 +1,26 @@
-[]
+[ {
+  "txId" : "c6184147-ebcb-4609-a536-a3e75c7fb6a0",
+  "coordinatorId" : "server-3",
+  "segmentIds" : null,
+  "type" : "CREATE_RESERVATION",
+  "logicalTimestamp" : 13,
+  "reservationData" : {
+    "reservationId" : "c9b14965-9c0e-445d-b689-f07f3721c140",
+    "userId" : "cc85fb20-79ea-466b-a3e8-764434fca841",
+    "segments" : [ {
+      "id" : "00000000-0000-0000-0000-000000000001",
+      "serverId" : "server-1",
+      "origin" : "Salvador",
+      "destination" : "Feira De Santana",
+      "price" : 60.0,
+      "availableSeats" : 1,
+      "departureAt" : [ 2029, 11, 3, 7, 30 ],
+      "arrivalAt" : [ 2029, 11, 3, 8, 30 ]
+    } ]
+  },
+  "decision" : "ABORT",
+  "currentStatus" : "ABORTED",
+  "participants" : {
+    "server-1" : "PREPARING"
+  }
+} ]

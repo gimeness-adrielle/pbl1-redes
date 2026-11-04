@@ -2,12 +2,11 @@ services:
   server1:
     build: .
     container_name: server1
-    command: ["server"]
+    command: ["java", "-jar", "app.jar", "server"]
     env_file:
-      - .env
+      - .env.docker
     environment:
       SERVER_ID: server-1
-      SOCKET_PORT: ${SERVER1_SOCKET_PORT}
       SPRING_PROFILES_ACTIVE: test
     ports:
       - "${SERVER1_SOCKET_PORT}:${SERVER1_SOCKET_PORT}"
@@ -18,12 +17,11 @@ services:
   server2:
     build: .
     container_name: server2
-    command: ["server"]
+    command: ["java", "-jar", "app.jar", "server"]
     env_file:
-      - .env
+      - .env.docker
     environment:
       SERVER_ID: server-2
-      SOCKET_PORT: ${SERVER2_SOCKET_PORT}
       SPRING_PROFILES_ACTIVE: test
     ports:
       - "${SERVER2_SOCKET_PORT}:${SERVER2_SOCKET_PORT}"
@@ -34,12 +32,11 @@ services:
   server3:
     build: .
     container_name: server3
-    command: ["server"]
+    command: ["java", "-jar", "app.jar", "server"]
     env_file:
-      - .env
+      - .env.docker
     environment:
       SERVER_ID: server-3
-      SOCKET_PORT: ${SERVER3_SOCKET_PORT}
       SPRING_PROFILES_ACTIVE: test
     ports:
       - "${SERVER3_SOCKET_PORT}:${SERVER3_SOCKET_PORT}"
@@ -47,3 +44,25 @@ services:
     volumes:
       - ./data-test/server3:/app/data
 
+  test-runner:
+    image: maven:3.9-eclipse-temurin-26
+    container_name: test-runner
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - SERVER1_URL=http://server1:8080
+      - SERVER2_URL=http://server2:8080
+      - SERVER3_URL=http://server3:8080
+    depends_on:
+      - server1
+      - server2
+      - server3
+    command: >
+      bash -c "echo 'Instalando curl...' &&
+               apt-get update && apt-get install -y curl &&
+               echo 'Aguardando os servidores subirem...' &&
+               until timeout 1 bash -c 'cat < /dev/null > /dev/tcp/server1/8080' 2>/dev/null; do sleep 2; done &&
+               echo 'Servidores online! Executando testes...' &&
+               mvn test -Dtest=TransactionE2ETest#shouldRejectReservation_whenParticipantIsUnavailable -Dsurefire.useFile=false"
